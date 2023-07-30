@@ -10,49 +10,49 @@ cd vota-operator-scripts/ && yarn
 mkdir -p build/inputs
 export CONTRACT_ADDRESS=<YOUR_CONTRACT_ADDRESS>
 ```
-
 ### Step 1
 
-**关闭 Voting 阶段并获取合约中 sign_up / publish_message 的相关数据。**
+** Close the Voting phase and get the data related to sign_up / publish_message in the contract. **
 
-1. 首先需要关闭 Voting 阶段
+1. First you need to close the Voting phase
 
 ```bash
 // stop voting period
 dorad tx wasm execute \
   $CONTRACT_ADDRESS \
   '{ "stop_voting_period": { "max_vote_options": "5" } }' \
-  --from wallet  --gas-prices 0.01uDORA --gas auto --gas-adjustment 1.3 --chain-id "doravota-devnet" --node http://18.139.226.67:26657 -y
+  --from wallet --gas-prices 0.01uDORA --gas auto --gas-adjustment 1.3 --chain-id "doravota-devnet" --node http://18.139.226.67:26657 -y
 ```
 
-2. 其次我们的operator需要通过 `getContractLogs.js` 将指定合约的signUp和publishMessage的数据同步下来。
+2. Secondly, our operator needs to synchronize the signUp and publishMessage data down for the specified contract via `getContractLogs.js`.
 
-```shell
+``shell
 node js/getContractLogs.js YOUR_CONTRACT_ADDRESS
 ```
 
 ### Step2
 
-**计算 inputs & proof**
+**Calculate inputs & proof**
 
-1. 处理 `messages` 并拆分成多个 `inputs.json`。
+1. process `messages` and split into multiple `inputs.json`.
 
 ```shell
 node js/genInputs.js YOUR_COORDINATOR_KEY
 ```
 
-2. 生成每个 `proof` 文件，并直接生成调用合约的 `data`。
+2. Generate each `proof` file and generate the `data` for calling the contract directly.
 
 ```shell
 cd vota-operator-scripts/shell/s3
 bash proof.sh
-```
+``
+
 
 ### Step3
 
-根据计算出来的inputs和proof执行 process_message 和 process_tally 命令，进行证明阶段。
+Execute process_message and process_tally commands based on the computed `inputs` and `proof` for the proof phase.
 
-1. Processing message阶段
+1. Processing message phase
 
 ```shell
 // process message
@@ -64,7 +64,7 @@ dorad tx wasm execute \
 
 
 
-2. 关闭Processing message阶段
+2. Stop processing period.
 
 ```shell
 // stop processing period
@@ -76,7 +76,7 @@ dorad tx wasm execute \
 
 
 
-3. Processing Tallying证明阶段
+3. Proceed to the tallying proof stage.
 
 ```shell
 // process tally
@@ -88,7 +88,7 @@ dorad tx wasm execute \
 
 ### Step4
 
-结束整个 round 的投票
+Ends the entire round process
 
 ```shell
 // stop tallying period
