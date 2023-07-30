@@ -4,7 +4,6 @@ Scripts for Dora Vota round operators.
 ### Get Start
 
 ```shell
-
 git clone https://github.com/DoraFactory/vota-operator-scripts.git
 cd vota-operator-scripts/ && yarn
 mkdir -p build/inputs
@@ -12,7 +11,7 @@ export CONTRACT_ADDRESS=<YOUR_CONTRACT_ADDRESS>
 ```
 ### Step 1
 
-** Close the Voting phase and get the data related to sign_up / publish_message in the contract. **
+**Close the Voting phase and get the data related to sign_up / publish_message in the contract. **
 
 1. First you need to close the Voting phase
 
@@ -26,9 +25,10 @@ dorad tx wasm execute \
 
 2. Secondly, our operator needs to synchronize the signUp and publishMessage data down for the specified contract via `getContractLogs.js`.
 
-``shell
+```shell
 node js/getContractLogs.js YOUR_CONTRACT_ADDRESS
 ```
+
 
 ### Step2
 
@@ -45,7 +45,7 @@ node js/genInputs.js YOUR_COORDINATOR_KEY
 ```shell
 cd vota-operator-scripts/shell/s3
 bash proof.sh
-``
+```
 
 
 ### Step3
@@ -95,5 +95,5 @@ Ends the entire round process
 dorad tx wasm execute \
   dora17uh2wj875vt64x7pzzy08slsl5pqupfln0vw2k79knfshygy6aussrdx6r \
   '{ "stop_tallying_period": { "results": ["0", "0", "0", "0", "0"], "salt": "1234567890" } }' \
-  --from fengfeng  --gas-prices 0.01uDORA --gas auto --gas-adjustment 1.3 --chain-id "doravota-devnet" --node http://18.139.226.67:26657 -y
+  --from wallet  --gas-prices 0.01uDORA --gas auto --gas-adjustment 1.3 --chain-id "doravota-devnet" --node http://18.139.226.67:26657 -y
 ```
