@@ -62,8 +62,6 @@ dorad tx wasm execute \
   --from wallet  --gas-prices 0.01uDORA --gas auto --gas-adjustment 1.3 --chain-id "doravota-devnet" --node http://18.139.226.67:26657 -y
 ```
 
-
-
 2. Stop processing period.
 
 ```shell
@@ -73,8 +71,6 @@ dorad tx wasm execute \
   '{ "stop_processing_period": { } }' \
   --from wallet  --gas-prices 0.01uDORA --gas auto --gas-adjustment 1.3 --chain-id "doravota-devnet" --node http://18.139.226.67:26657 -y
 ```
-
-
 
 3. Proceed to the tallying proof stage.
 
