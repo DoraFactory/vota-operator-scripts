@@ -11,6 +11,7 @@ function toBigInt(list) {
 console.log(process.argv);
 
 const coordinatorKey = BigInt(process.argv[2])
+const stateSalt = BigInt(process.argv[3])
 
 const logsPath = path.join(__dirname, '../build/contract-logs.json')
 const outputPath = path.join(__dirname, '../build/inputs')
@@ -43,7 +44,8 @@ const commitments = {}
 let i = 0
 while (main.states === 1) {
   // const input = main.processMessage(genRandomKey())
-  const input = main.processMessage(1234567890n)
+  // const input = main.processMessage(1234567890n)
+  const input = main.processMessage(stateSalt)
   commitments['msg_' + i.toString().padStart(4, '0')] = main.stateCommitment
 
   fs.writeFileSync(
@@ -57,7 +59,8 @@ while (main.states === 1) {
 i = 0
 while (main.states === 2) {
   // const input = main.processTally(genRandomKey())
-  const input = main.processTally(1234567890n)
+  // const input = main.processTally(1234567890n)
+  const input = main.processTally(stateSalt)
   commitments['tally_' + i.toString().padStart(4, '0')] = main.tallyCommitment
 
   fs.writeFileSync(
