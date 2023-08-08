@@ -120,7 +120,7 @@ The value of `new_state_commitment` comes from the **tally** of `commitments.jso
 ```shell
 // process tally
 dorad tx wasm execute \
-  dora17uh2wj875vt64x7pzzy08slsl5pqupfln0vw2k79knfshygy6aussrdx6r \
+  $CONTRACT_ADDRESS \
   '{ "process_tally": { "new_tally_commitment": <commitments.json:tally_0000>, "proof": { "a": <tally/proof_hex.json:pi_a>,  "b": <tally/proof_hex.json:pi_b>, "c": <tally/proof_hex.json:pi_c>} } }' \
   --from wallet  --gas-prices 0.01uDORA --gas auto --gas-adjustment 1.3 --chain-id "doravota-devnet" --node https://vota-rpc.dorafactory.org -y
 ```
@@ -134,7 +134,7 @@ The value of `results` comes from the **tally** of `result.json`
 ```shell
 // stop tallying period
 dorad tx wasm execute \
-  dora17uh2wj875vt64x7pzzy08slsl5pqupfln0vw2k79knfshygy6aussrdx6r \
+  $CONTRACT_ADDRESS \
   '{ "stop_tallying_period": { "results": <RESULT_DATA>, "salt": <STATE_SALT> } }' \
   --from wallet  --gas-prices 0.01uDORA --gas auto --gas-adjustment 1.3 --chain-id "doravota-devnet" --node https://vota-rpc.dorafactory.org -y
 ```
