@@ -96,7 +96,7 @@ The value of `new_state_commitment` comes from the **msg** of `commitments.json`
 
 
 ```shell
-<commitments.json.msg_0000>/ process message
+// process message
 dorad tx wasm execute \
   $CONTRACT_ADDRESS \
   '{ "process_message": { "new_state_commitment": <commitments.json:msg_0000>, "proof": { "a": <msg/proof_hex.json:pi_a>,  "b": <msg/proof_hex.json:pi_b>, "c": <msg/proof_hex.json:pi_c>} } }' \
