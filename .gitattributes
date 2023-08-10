@@ -1,0 +1,4 @@
+keys/zkey/msg_0.zkey filter=lfs diff=lfs merge=lfs -text
+keys/zkey/msg_1.zkey filter=lfs diff=lfs merge=lfs -text
+keys/zkey/tally_0.zkey filter=lfs diff=lfs merge=lfs -text
+keys/zkey/tally_1.zkey filter=lfs diff=lfs merge=lfs -text
