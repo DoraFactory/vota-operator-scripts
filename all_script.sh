@@ -21,11 +21,27 @@ compile_and_ts_and_witness() {
   ftime="$(date -u +%s)"
   echo "	($(($(date -u +%s)-$itime))s)"
 
+  # create zkey
+  echo $(date +"%T") "start create zkey"
+  mkdir -p build/zkey
+  snarkjs g16s build/r1cs/msg.r1cs ptau/powersOfTau28_hez_final_22.ptau build/zkey/msg_0.zkey
+  snarkjs g16s build/r1cs/tally.r1cs ptau/powersOfTau28_hez_final_22.ptau build/zkey/tally_0.zkey
+
+  # output verification key
+  echo $(date +"%T") "output verification key"
+  mkdir -p build/verification_key/msg
+  mkdir -p build/verification_key/tally
+  snarkjs zkc build/zkey/msg_0.zkey build/zkey/msg_1.zkey --name="DoraHacks" -v
+  snarkjs zkev build/zkey/msg_1.zkey build/verification_key/msg/verification_key.json
+
+  snarkjs zkc build/zkey/tally_0.zkey build/zkey/tally_1.zkey --name="DoraHacks" -v
+  snarkjs zkev build/zkey/tally_1.zkey build/verification_key/tally/verification_key.json
+
   # generate witness
   echo $(date +"%T") "start generate witness"
   mkdir -p build/wtns
 
-  node "build/r1cs/msg_js/generate_witness.js" "build/r1cs/msg_js/msg.wasm" "build/inputs/msg-input_0000.json" "./build/wtns/msg.wtns"
+  node "build/r1cs/msg_js/generate_witness.js" "build/r1cs//msg_js/msg.wasm" "build/inputs/msg-input_0000.json" "./build/wtns/msg.wtns"
   node "build/r1cs/tally_js/generate_witness.js" "build/r1cs/tally_js/tally.wasm" "build/inputs/tally-input_0000.json" "./build/wtns/tally.wtns"
 
  # generate public and proof
@@ -33,14 +49,14 @@ compile_and_ts_and_witness() {
  mkdir -p build/proof/msg
  mkdir -p build/proof/tally
  mkdir -p build/public
- snarkjs g16p "keys/zkey/msg_1.zkey" "build/wtns/msg.wtns" "build/proof/msg/proof.json" build/public/msg-public.json
- snarkjs g16p "keys/zkey/tally_1.zkey" "build/wtns/tally.wtns" "build/proof/tally/proof.json" build/public/tally-public.json
+ snarkjs g16p "build/zkey/msg_1.zkey" "build/wtns/msg.wtns" "build/proof/msg/proof.json" build/public/msg-public.json
+ snarkjs g16p "build/zkey/tally_1.zkey" "build/wtns/tally.wtns" "build/proof/tally/proof.json" build/public/tally-public.json
 
  # verify proof by snarkjs
  echo $(date +"%T") "start verify the msg proof"
- snarkjs groth16 verify keys/verification_key/msg/verification_key.json build/public/msg-public.json build/proof/msg/proof.json
+ snarkjs groth16 verify build/verification_key/msg/verification_key.json build/public/msg-public.json build/proof/msg/proof.json
  echo $(date +"%T") "start verify the tally proof"
- snarkjs groth16 verify keys/verification_key/tally/verification_key.json build/public/tally-public.json build/proof/tally/proof.json
+ snarkjs groth16 verify build/verification_key/tally/verification_key.json build/public/tally-public.json build/proof/tally/proof.json
 
  # start generate final proof
  echo $(date +"%T") "start transform the proof data format"

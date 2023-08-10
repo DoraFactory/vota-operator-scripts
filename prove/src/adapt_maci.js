@@ -85,4 +85,4 @@ function Bytes2Str(arr) {
     return str;
 }
 
-adaptToUncompressed(`../../build/verification_key/${circuit_name}/verification_key.json`, `../../build/proof/${circuit_name}/proof.json`)
+adaptToUncompressed(`../../keys/verification_key/${circuit_name}/verification_key.json`, `../../build/proof/${circuit_name}/proof.json`)

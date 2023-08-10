@@ -5,7 +5,7 @@ Scripts for Dora Vota round operators.
 
 ```shell
 git clone https://github.com/DoraFactory/vota-operator-scripts.git
-cd vota-operator-scripts/ && yarn
+cd vota-operator-scripts/
 mkdir -p build/inputs
 export CONTRACT_ADDRESS=<YOUR_CONTRACT_ADDRESS>
 export COORDINATOR_KEY=<YOUR_COORDINATOR_KEY>
@@ -22,7 +22,7 @@ Close the Voting phase
 dorad tx wasm execute \
   $CONTRACT_ADDRESS \
   '{ "stop_voting_period": { "max_vote_options": "5" } }' \
-  --from wallet --gas-prices 0.01uDORA --gas auto --gas-adjustment 1.3 --chain-id "doravota-devnet" --node https://vota-rpc.dorafactory.org -y
+  --from wallet --gas-prices 0.01uDORA --gas auto --gas-adjustment 1.3 --chain-id "doravota-devnet" --node https://vota-rpc.dorafactory.org:443 -y
 ```
 
 ### Step2
@@ -35,7 +35,7 @@ dorad tx wasm execute \
 2. The operator command will help us to compile the circuit as well as generate the final proof and commitment based on the data from the Round contract and **COORDINATOR_KEY**.
 
 ```bash
-./operator.sh CONTRACT_ADDRESS COORDINATOR_KEY STATE_SALT
+./operator.sh $CONTRACT_ADDRESS $COORDINATOR_KEY $STATE_SALT
 ```
 
 It will eventually generate the data we need.
@@ -81,10 +81,6 @@ It will eventually generate the data we need.
 ]
 ```
 
-
-
-
-
 ### Step3
 
 Execute process_message and process_tally commands based on the computed `inputs` and `proof` for the proof phase.
@@ -93,14 +89,12 @@ Execute process_message and process_tally commands based on the computed `inputs
 
 The value of `new_state_commitment` comes from the **msg** of `commitments.json`, and the **msg proof** data from `build/final_proof/msg/proof_hex.json`.
 
-
-
 ```shell
 // process message
 dorad tx wasm execute \
   $CONTRACT_ADDRESS \
   '{ "process_message": { "new_state_commitment": <commitments.json:msg_0000>, "proof": { "a": <msg/proof_hex.json:pi_a>,  "b": <msg/proof_hex.json:pi_b>, "c": <msg/proof_hex.json:pi_c>} } }' \
-  --from wallet  --gas-prices 0.01uDORA --gas auto --gas-adjustment 1.3 --chain-id "doravota-devnet" --node https://vota-rpc.dorafactory.org -y
+  --from wallet --gas-prices 0.01uDORA --gas auto --gas-adjustment 1.3 --chain-id "doravota-devnet" --node https://vota-rpc.dorafactory.org:443 -y
 ```
 
 2. Stop processing period.
@@ -110,7 +104,7 @@ dorad tx wasm execute \
 dorad tx wasm execute \
   $CONTRACT_ADDRESS \
   '{ "stop_processing_period": { } }' \
-  --from wallet  --gas-prices 0.01uDORA --gas auto --gas-adjustment 1.3 --chain-id "doravota-devnet" --node https://vota-rpc.dorafactory.org -y
+  --from wallet --gas-prices 0.01uDORA --gas auto --gas-adjustment 1.3 --chain-id "doravota-devnet" --node https://vota-rpc.dorafactory.org:443 -y
 ```
 
 3. Proceed to the tallying proof stage.
@@ -122,7 +116,7 @@ The value of `new_state_commitment` comes from the **tally** of `commitments.jso
 dorad tx wasm execute \
   $CONTRACT_ADDRESS \
   '{ "process_tally": { "new_tally_commitment": <commitments.json:tally_0000>, "proof": { "a": <tally/proof_hex.json:pi_a>,  "b": <tally/proof_hex.json:pi_b>, "c": <tally/proof_hex.json:pi_c>} } }' \
-  --from wallet  --gas-prices 0.01uDORA --gas auto --gas-adjustment 1.3 --chain-id "doravota-devnet" --node https://vota-rpc.dorafactory.org -y
+  --from wallet --gas-prices 0.01uDORA --gas auto --gas-adjustment 1.3 --chain-id "doravota-devnet" --node https://vota-rpc.dorafactory.org:443 -y
 ```
 
 ### Step4
@@ -136,5 +130,5 @@ The value of `results` comes from the **tally** of `result.json`
 dorad tx wasm execute \
   $CONTRACT_ADDRESS \
   '{ "stop_tallying_period": { "results": <RESULT_DATA>, "salt": <STATE_SALT> } }' \
-  --from wallet  --gas-prices 0.01uDORA --gas auto --gas-adjustment 1.3 --chain-id "doravota-devnet" --node https://vota-rpc.dorafactory.org -y
+  --from wallet --gas-prices 0.01uDORA --gas auto --gas-adjustment 1.3 --chain-id "doravota-devnet" --node https://vota-rpc.dorafactory.org:443 -y
 ```
