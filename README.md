@@ -23,8 +23,6 @@ yarn genOperatorKey
 
 **Close the Voting phase.**
 
-Close the Voting phase
-
 ```bash
 // stop voting period
 dorad tx wasm execute \
