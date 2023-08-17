@@ -5,7 +5,7 @@ Scripts for Dora Vota round operators.
 
 ```shell
 git clone https://github.com/DoraFactory/vota-operator-scripts.git
-cd vota-operator-scripts/
+cd vota-operator-scripts/ && yarn
 mkdir -p build/inputs
 export CONTRACT_ADDRESS=<YOUR_CONTRACT_ADDRESS>
 export COORDINATOR_KEY=<YOUR_COORDINATOR_KEY>
