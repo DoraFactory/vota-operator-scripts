@@ -80,13 +80,21 @@ const genEcdhSharedKey = (privKey, pubKey) => {
   }
 }
 
+const genOperatorKeypair = (pkey) => {
+  const privKey = pkey || genRandomKey()
+  const pubKey = genPubKey(privKey)
+  const formatedPrivKey = formatPrivKeyForBabyJub(privKey)
+
+  return { privKey: privKey.toString(), pubKey: [pubKey[0].toString(), pubKey[1].toString()], formatedPrivKey: formatedPrivKey.toString() }
+}
 
 module.exports = {
   stringizing,
   bigInt2Buffer,
   genRandomKey,
   genKeypair,
-  genEcdhSharedKey
+  genEcdhSharedKey,
+  genOperatorKeypair
 }
 
 // const bob = genKeypair(111111n)

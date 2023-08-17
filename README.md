@@ -11,6 +11,14 @@ export CONTRACT_ADDRESS=<YOUR_CONTRACT_ADDRESS>
 export COORDINATOR_KEY=<YOUR_COORDINATOR_KEY>
 export STATE_SALT=<YOUR_STATE_SALT>
 ```
+**About `COORDINATOR_KEY`**
+
+> We provide methods for locally generating Operator public and private keys, by which you can randomly generate a key.
+
+```bash
+yarn genOperatorKey
+```
+
 ### Step 1
 
 **Close the Voting phase.**
