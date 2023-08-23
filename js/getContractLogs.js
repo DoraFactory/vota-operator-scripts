@@ -64,7 +64,7 @@ const provider = 'https://vota-api.dorafactory.org/'
   // console.log(states)
 
   const PUBLISH_MESSAGE_EVENTS_QUERY = `query {
-    publishMessageEvents(orderBy: [TIMESTAMP_ASC],
+    publishMessageEvents(orderBy: [MSG_CHAIN_LENGTH_ASC],
       filter: {
         contractAddress: { 
           equalTo: "${contract}" 
