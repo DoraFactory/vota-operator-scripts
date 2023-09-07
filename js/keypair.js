@@ -1,4 +1,6 @@
 const { babyJub, eddsa, poseidonEncrypt, poseidonDecrypt } = require('circom')
+// import * as circom from "circom";
+// import * as crypto from "crypto";
 const crypto = require('crypto')
 const ff = require('ffjavascript')
 const createBlakeHash = require('blake-hash')

@@ -10,8 +10,11 @@ if (process.argv.length < 3) {
     process.exit(1);
 }
 const circuit_name = process.argv[2];
+const sigle_number = process.argv[3];
 
-const adaptToUncompressed = async (verificationKeyName, proofName) => {
+const adaptToUncompressed = async (circuit_name, sigle_number, filePath) => {
+    const verificationKeyName = `${filePath}/keys/verification_key/${circuit_name}/verification_key.json` 
+    const proofName = `${filePath}/build/proof/${circuit_name}-${sigle_number}/proof.json`
 
     const verificationKey = JSON.parse(fs.readFileSync(verificationKeyName, "utf8"));
     const pof = JSON.parse(fs.readFileSync(proofName, "utf8"));
@@ -63,11 +66,8 @@ const adaptToUncompressed = async (verificationKeyName, proofName) => {
     hex_vkey.ic0 = '0x'+Bytes2Str( uncompressed_vkey.ic[0])
     hex_vkey.ic1 = '0x'+Bytes2Str( uncompressed_vkey.ic[1])
 
-    // fs.writeFileSync(path.resolve(`../../circuit/qf-maci/build/final_proof/${circuit_name}/proof_uncompressed.json`), JSON.stringify(uncompressed_proof));
-    // fs.writeFileSync(path.resolve(`../../circuit/qf-maci/build/final_verification_key/${circuit_name}/vkey_uncompressed.json`), JSON.stringify(uncompressed_vkey));
-    
-    fs.writeFileSync(path.resolve(`../../build/final_proof/${circuit_name}/proof_hex.json`), JSON.stringify(hex_proof));
-    fs.writeFileSync(path.resolve(`../../build/final_verification_key/${circuit_name}/vkey_hex.json`), JSON.stringify(hex_vkey));
+    fs.writeFileSync(path.resolve(`${filePath}/build/final_proof/${circuit_name}-${sigle_number}/proof_hex.json`), JSON.stringify(hex_proof));
+    fs.writeFileSync(path.resolve(`${filePath}/build/final_verification_key/${circuit_name}-${sigle_number}/vkey_hex.json`), JSON.stringify(hex_vkey));
 
     console.log(`generate uncompressed proof and verification data successfully!`);
     process.exit();
@@ -84,5 +84,6 @@ function Bytes2Str(arr) {
     }
     return str;
 }
-
-adaptToUncompressed(`../../keys/verification_key/${circuit_name}/verification_key.json`, `../../build/proof/${circuit_name}/proof.json`)
+const filePath = process.cwd()
+console.log(filePath);
+adaptToUncompressed(circuit_name, sigle_number, filePath)
