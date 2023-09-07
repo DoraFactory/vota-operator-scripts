@@ -6,11 +6,27 @@ Scripts for Dora Vota round operators.
 ```shell
 git clone https://github.com/DoraFactory/vota-operator-scripts.git
 cd vota-operator-scripts/ && yarn
-mkdir -p build/inputs
-export CONTRACT_ADDRESS=<YOUR_CONTRACT_ADDRESS>
-export COORDINATOR_KEY=<YOUR_COORDINATOR_KEY>
-export STATE_SALT=<YOUR_STATE_SALT>
+yarn build
 ```
+
+
+1. 设置env
+
+```
+# operator.sh env
+CONTRACT_ADDRESS=<YOUR_CONTRACT_ADDRESS>
+COORDINATOR_KEY=<YOUR_COORDINATOR_KEY>
+STATE_SALT=<YOUR_STATE_SALT>
+
+# operator cli env
+MNEMONIC=""
+
+```
+
+
+
+
+
 **About `COORDINATOR_KEY`**
 
 > We provide methods for locally generating Operator public and private keys, by which you can randomly generate a key.

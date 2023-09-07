@@ -1,3 +1,5 @@
 node_modules/
 build/
 ptau/powersOfTau28_hez_final_22.ptau
+.env
+dist

@@ -17,11 +17,12 @@ const commandModule: CommandModule = {
 
   async handler() {
     const maci = await getContractSignerClient();
-    const res = await maci.startProcessPeriod( {
+    const res = await maci.startProcessPeriod({
         amount: [{ denom: "uDORA", amount: "20" }],
         gas: "200000",
     });
     console.log(res)
+
     // let msg_proof = await readAndParseJsonFile(`${path}/build/final_proof/msg/proof_hex.json`);
     // console.log(msg_proof)
 
