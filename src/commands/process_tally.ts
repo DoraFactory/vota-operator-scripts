@@ -23,17 +23,17 @@ const commandModule: CommandModule = {
       const newTallyCommitment = commitments[`tally_${tailNum}`];
       const tally_proof = await readAndParseJsonFile(`${path}/build/final_proof/tally_${tailNum}/proof_hex.json`);
       const proof: ProofType = {
-        a: tally_proof['pi_a'],
-        b: tally_proof['pi_b'],
-        c: tally_proof['pi_c']
+        a: tally_proof['pi_a'].substring(2),
+        b: tally_proof['pi_b'].substring(2),
+        c: tally_proof['pi_c'].substring(2)
       }
 
       const res = await maci.processTally({        
         newTallyCommitment,
         proof,
       }, {
-        amount: [{ denom: "uDORA", amount: "20" }],
-        gas: "200000",
+        amount: [{ denom: "uDORA", amount: "10000000" }],
+        gas: "40000000",
       });
       console.log(res)
       console.log("")

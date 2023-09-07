@@ -24,17 +24,17 @@ const commandModule: CommandModule = {
       const newStateCommitment = commitments[`msg_${tailNum}`];
       const msg_input = await readAndParseJsonFile(`${path}/build/final_proof/msg_${tailNum}/proof_hex.json`);
       const proof: ProofType = {
-        a: msg_input['pi_a'],
-        b: msg_input['pi_b'],
-        c: msg_input['pi_c']
+        a: msg_input['pi_a'].substring(2),
+        b: msg_input['pi_b'].substring(2),
+        c: msg_input['pi_c'].substring(2)
       }
 
       const res = await maci.processMessage({        
         newStateCommitment,
         proof,
-      }, {
-        amount: [{ denom: "uDORA", amount: "20" }],
-        gas: "200000",
+      },{
+        amount: [{ denom: "uDORA", amount: "10000000" }],
+        gas: "40000000",
       });
       console.log(res)
       console.log("")

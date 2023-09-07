@@ -24,7 +24,14 @@
     "dev": "tsup --watch",
     "lint": "eslint . --ext .ts",
     "genOperatorKey": "node js/genOperatorKey.js",
-    "operator": "node ./dist/operator.mjs"
+    "startVoting": "node ./dist/operator.mjs start-voting",
+    "stopVoting": "node ./dist/operator.mjs stop-voting",
+    "genProof": "./operator.sh",
+    "startProcess": "node ./dist/operator.mjs start-process",
+    "processMessage": "node ./dist/operator.mjs process-message",
+    "stopProcessing": "node ./dist/operator.mjs stop-processing",
+    "processTally": "node ./dist/operator.mjs process-tally",
+    "stopTallying": "node ./dist/operator.mjs stop-tallying"
   },
   "license": "ISC",
   "dependencies": {

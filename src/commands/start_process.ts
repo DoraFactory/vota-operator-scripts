@@ -18,8 +18,8 @@ const commandModule: CommandModule = {
   async handler() {
     const maci = await getContractSignerClient();
     const res = await maci.startProcessPeriod({
-        amount: [{ denom: "uDORA", amount: "20" }],
-        gas: "200000",
+      amount: [{ denom: "uDORA", amount: "10000000" }],
+      gas: "40000000",
     });
     console.log(res)
 
