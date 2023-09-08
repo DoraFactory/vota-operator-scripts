@@ -23,9 +23,7 @@ MNEMONIC=""
 
 ```
 
-
-
-
+![image-20230908204222123](http://tomasfeng.oss-rg-china-mainland.aliyuncs.com/2023-09-08-124222.png)
 
 **About `COORDINATOR_KEY`**
 
@@ -40,11 +38,7 @@ yarn genOperatorKey
 **Close the Voting phase.**
 
 ```bash
-// stop voting period
-dorad tx wasm execute \
-  $CONTRACT_ADDRESS \
-  '{ "stop_voting_period": { "max_vote_options": "5" } }' \
-  --from wallet --gas-prices 0.01uDORA --gas auto --gas-adjustment 1.3 --chain-id "doravota-devnet" --node https://vota-rpc.dorafactory.org:443 -y
+yarn stopVoting
 ```
 
 ### Step2
@@ -57,7 +51,17 @@ dorad tx wasm execute \
 2. The operator command will help us to compile the circuit as well as generate the final proof and commitment based on the data from the Round contract and **COORDINATOR_KEY**.
 
 ```bash
-./operator.sh $CONTRACT_ADDRESS $COORDINATOR_KEY $STATE_SALT
+yarn startProcess
+
+yarn genProof
+
+yarn processMessage
+
+yarn stopProcessing
+
+yarn processTally
+
+yarn stopTally
 ```
 
 It will eventually generate the data we need.

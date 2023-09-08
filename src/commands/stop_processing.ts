@@ -16,8 +16,8 @@ const commandModule: CommandModule = {
     console.log(`stop processing period`)
     const maci = await getContractSignerClient();
     const res = await maci.stopProcessingPeriod( {
-      amount: [{ denom: "uDORA", amount: "10000000" }],
-      gas: "40000000",
+      amount: [{ denom: "uDORA", amount: "600000" }],
+      gas: "400000",
     });
     console.log(res)
     process.exit(0);

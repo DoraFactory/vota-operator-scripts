@@ -14,8 +14,8 @@ const commandModule: CommandModule = {
     console.log(`start voting period`)
     const maci = await getContractSignerClient();
     const res = await maci.startVotingPeriod({
-        amount: [{ denom: "uDORA", amount: "20" }],
-        gas: "200000",
+      amount: [{ denom: "uDORA", amount: "600000" }],
+      gas: "400000",
     });
     console.log(res)
     process.exit(0);

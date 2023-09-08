@@ -7,8 +7,8 @@ const { stringizing } = require('./keypair')
 
 // * DEV *
 // const contract = 'dora1uv4dz7ngaqwymvxggrjp3rnz3gs33szwjsnrxqg0ylkykqf8r7nskff7m8'
-// const provider = 'https://vota-testnet-api.dorafactory.org/'
-const provider = 'http://127.0.0.1:8000'
+const provider = 'https://vota-testnet-api.dorafactory.org/'
+// const provider = 'http://127.0.0.1:8000'
 
 ;(async () => {
   const messages = []

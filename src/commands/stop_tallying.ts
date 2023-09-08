@@ -23,7 +23,7 @@ const commandModule: CommandModule = {
 
     const res = await maci.stopTallyingPeriod({results, salt}, {
       amount: [{ denom: "uDORA", amount: "10000000" }],
-      gas: "40000000",
+      gas: "10000000",
     });
     console.log(res)
     process.exit(0);
