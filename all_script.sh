@@ -54,11 +54,11 @@ compile_and_ts_and_witness() {
         # generate public and proof
         echo $(date +"%T") "start generate proof"
         mkdir -p build/proof/msg-$number
-        snarkjs g16p "keys/zkey/msg_1.zkey" "build/wtns/msg-$number.wtns" "build/proof/msg-$number/proof.json" build/public/msg-public-$number.json
+        snarkjs g16p "zkeys/zkey/msg_1.zkey" "build/wtns/msg-$number.wtns" "build/proof/msg-$number/proof.json" build/public/msg-public-$number.json
 
         # verify proof by snarkjs
         echo $(date +"%T") "start verify the msg proof"
-        snarkjs groth16 verify keys/verification_key/msg/verification_key.json build/public/msg-public-$number.json build/proof/msg-$number/proof.json
+        snarkjs groth16 verify zkeys/verification_key/msg/verification_key.json build/public/msg-public-$number.json build/proof/msg-$number/proof.json
 
         # start generate final proof
         echo $(date +"%T") "start transform the proof data format"
@@ -77,11 +77,11 @@ compile_and_ts_and_witness() {
         # generate public and proof
         echo $(date +"%T") "start generate proof"
         mkdir -p build/proof/tally-$number
-        snarkjs g16p "keys/zkey/tally_1.zkey" "build/wtns/tally-$number.wtns" "build/proof/tally-$number/proof.json" build/public/tally-public-$number.json
+        snarkjs g16p "zkeys/zkey/tally_1.zkey" "build/wtns/tally-$number.wtns" "build/proof/tally-$number/proof.json" build/public/tally-public-$number.json
 
         # verify proof by snarkjs
         echo $(date +"%T") "start verify the tally proof"
-        snarkjs groth16 verify keys/verification_key/tally/verification_key.json build/public/tally-public-$number.json build/proof/tally-$number/proof.json
+        snarkjs groth16 verify zkeys/verification_key/tally/verification_key.json build/public/tally-public-$number.json build/proof/tally-$number/proof.json
 
         # start generate final proof
         echo $(date +"%T") "start transform the proof data format"

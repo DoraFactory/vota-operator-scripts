@@ -13,7 +13,7 @@ const circuit_name = process.argv[2];
 const sigle_number = process.argv[3];
 
 const adaptToUncompressed = async (circuit_name, sigle_number, filePath) => {
-    const verificationKeyName = `${filePath}/keys/verification_key/${circuit_name}/verification_key.json` 
+    const verificationKeyName = `${filePath}/zkeys/verification_key/${circuit_name}/verification_key.json` 
     const proofName = `${filePath}/build/proof/${circuit_name}_${sigle_number}/proof.json`
 
     const verificationKey = JSON.parse(fs.readFileSync(verificationKeyName, "utf8"));

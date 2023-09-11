@@ -13,7 +13,7 @@ export interface InstantiateMsg {
   parameters: MaciParameters;
   process_vkey: VKeyType;
   qtr_lib: QuinaryTreeRoot;
-  round_info?: RoundInfo | null;
+  round_info: RoundInfo;
   tally_vkey: VKeyType;
   voting_time?: VotingTime | null;
   whitelist?: Whitelist | null;
@@ -40,9 +40,9 @@ export interface QuinaryTreeRoot {
   zeros: [Uint256, Uint256, Uint256, Uint256, Uint256, Uint256, Uint256, Uint256, Uint256];
 }
 export interface RoundInfo {
-  description?: string | null;
-  link?: string | null;
-  title?: string | null;
+  description: string;
+  link: string;
+  title: string;
 }
 export interface VotingTime {
   end_time?: Timestamp | null;
@@ -149,6 +149,10 @@ export type QueryMsg = {
   white_balance_of: {
     sender: string;
   };
+} | {
+  vote_option_map: {};
+} | {
+  max_vote_options: {};
 };
 export type Addr = string;
 export type PeriodStatus = "pending" | "voting" | "processing" | "tallying" | "ended";
@@ -156,3 +160,4 @@ export interface Period {
   status: PeriodStatus;
 }
 export type Boolean = boolean;
+export type ArrayOfString = string[];

@@ -7,6 +7,8 @@ import process_message from "./process_message";
 import stop_processing from "./stop_processing";
 import process_tally from "./process_tally";
 import stop_tallying from "./stop_tallying";
+import set_round_info from "./set_round_info";
+import query_max_vote_options from "./query_max_vote_options";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Each command has different options
 export const commands: CommandModule<any, any>[] = [
@@ -16,5 +18,7 @@ export const commands: CommandModule<any, any>[] = [
   process_message,
   stop_processing,
   process_tally,
-  stop_tallying
+  stop_tallying,
+  set_round_info,
+  query_max_vote_options,
 ];

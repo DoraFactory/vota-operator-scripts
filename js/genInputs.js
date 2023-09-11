@@ -15,12 +15,17 @@ const stateSalt = BigInt(process.argv[3])
 
 const logsPath = path.join(__dirname, '../build/contract-logs.json')
 const outputPath = path.join(__dirname, '../build/inputs')
+const maxVoteOptionsPath = path.join(__dirname, '../build/max-vote-options.json')
 
 const rawdata = fs.readFileSync(logsPath)
 const logs = JSON.parse(rawdata)
 
+
+const maxVoteOptionsdata = fs.readFileSync(maxVoteOptionsPath)
+const maxVoteOptionsJson = JSON.parse(maxVoteOptionsdata)
+
 // * DEV *
-const maxVoteOptions = 5
+const maxVoteOptions = Number(maxVoteOptionsJson.max_vote_options)
 const main = new MACI(
   2, 1, 1, 5,               // tree config
   coordinatorKey,
