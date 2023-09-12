@@ -1,5 +1,5 @@
 
-import fs from "fs";
+import * as fs from "fs";
 import path from "path";
 import * as curves from "../utils/curve.js";
 import { utils } from "ffjavascript";

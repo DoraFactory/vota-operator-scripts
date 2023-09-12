@@ -48,6 +48,7 @@ compile_and_ts_and_witness() {
 
   folder_path="./build/inputs"
   mkdir -p build/public
+
   for file in "$folder_path"/msg-input_*.json; do
       if [ -f "$file" ]; then
         filename=$(basename "$file") 
