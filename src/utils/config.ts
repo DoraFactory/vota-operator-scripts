@@ -17,10 +17,14 @@ import {
 import {
   CosmWasmClient,
   SigningCosmWasmClient,
+  SigningCosmWasmClientOptions
 } from "@cosmjs/cosmwasm-stargate";
 import * as fs from 'fs';
 import { VotaOperatorCliError } from "./errors";
 
+import {
+  GasPrice,
+} from "@cosmjs/stargate";
 export const rpcEndpoint = "https://vota-testnet-rpc.dorafactory.org";
 export const restEndpoint = "https://vota-testnet-rest.dorafactory.org";
 export const chainId = "doravota-devnet";
@@ -31,6 +35,14 @@ export const prefix = "dora";
 //   "ride woman device foam siren cruel dove island expand fiber tail exit dynamic alien crouch fish crime story keep law joke sunny they sock";
   
 // export const contractAddress = "dora14dky5amkrl4nc0t47pcdth8fjh940mkyfcdup55medx5rj8gsxaqrst236"
+
+
+/** Setting to speed up testing */
+const defaultSigningClientOptions: SigningCosmWasmClientOptions = {
+  broadcastPollIntervalMs: 8_000,
+  broadcastTimeoutMs: 16_000,
+  gasPrice: GasPrice.fromString("0.025uDORA"),
+};
 
 
 export async function getContractSignerClient() {
@@ -50,7 +62,10 @@ export async function getContractSignerClient() {
         });
   const signingCosmWasmClient = await SigningCosmWasmClient.connectWithSigner(
     rpcEndpoint,
-    wallet
+    wallet,
+    {
+      ...defaultSigningClientOptions,
+    }
   );
 
   const [{ address }] = await wallet.getAccounts();

@@ -15,10 +15,7 @@ const commandModule: CommandModule = {
   async handler() {
     console.log(`stop processing period`)
     const maci = await getContractSignerClient();
-    const res = await maci.stopProcessingPeriod( {
-      amount: [{ denom: "uDORA", amount: "600000" }],
-      gas: "400000",
-    });
+    const res = await maci.stopProcessingPeriod();
     console.log(res)
     process.exit(0);
   },

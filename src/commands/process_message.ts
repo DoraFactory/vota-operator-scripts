@@ -32,9 +32,6 @@ const commandModule: CommandModule = {
       const res = await maci.processMessage({        
         newStateCommitment,
         proof,
-      },{
-        amount: [{ denom: "uDORA", amount: "500000" }],
-        gas: "400000",
       });
       console.log(res)
       console.log("")

@@ -21,10 +21,7 @@ const commandModule: CommandModule = {
     let tally_final_input = await readAndParseJsonFile(`${path}/build/inputs/tally-input_${formatNumber(tallyCount-1)}.json`);
     let salt: Uint256 = tally_final_input["newResultsRootSalt"]
 
-    const res = await maci.stopTallyingPeriod({results, salt}, {
-      amount: [{ denom: "uDORA", amount: "10000000" }],
-      gas: "10000000",
-    });
+    const res = await maci.stopTallyingPeriod({results, salt});
     console.log(res)
     process.exit(0);
   },

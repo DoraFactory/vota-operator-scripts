@@ -39,10 +39,7 @@ const commandModule: CommandModule<Options, Options> = {
       link: linkData
     }
     console.log(roundInfo)
-    const res = await maci.setRoundInfo({roundInfo}, {
-      amount: [{ denom: "uDORA", amount: "600000" }],
-      gas: "400000",
-    });
+    const res = await maci.setRoundInfo({roundInfo});
     console.log(res)
     process.exit(0);
   },
