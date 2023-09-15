@@ -85,11 +85,66 @@ const genEcdhSharedKey = (privKey, pubKey) => {
 const genOperatorKeypair = (pkey) => {
   const privKey = pkey || genRandomKey()
   const pubKey = genPubKey(privKey)
-  // const formatedPrivKey = formatPrivKeyForBabyJub(privKey)
-
-  return { privKey: privKey.toString(), pubKey: [pubKey[0].toString(), pubKey[1].toString()] }
-  // return { privKey: privKey.toString(), pubKey: [pubKey[0].toString(), pubKey[1].toString()], formatedPrivKey: formatedPrivKey.toString() }
+  
+  const compressedPubkey = compressPublicKey(pubKey)
+  return { privKey: privKey.toString(), pubKey: compressedPubkey }
 }
+
+const compressPublicKey = (uncompressedPubkey) => {
+  const compressedPubkey = padWithZerosIfNeeded(uncompressedPubkey[0].toString(16)) + padWithZerosIfNeeded(uncompressedPubkey[1].toString(16))
+  return compressedPubkey
+}
+
+const decompressPublicKey = (compressedPubkey) => {
+  const x = compressedPubkey.slice(0, 64);
+  const y = compressedPubkey.slice(64);
+  return [hexStringToDecimalString(x), hexStringToDecimalString(y)]
+}
+
+function padWithZerosIfNeeded(inputString) {
+  if (inputString.length === 64) {
+    return inputString;
+  } else if (inputString.length < 64) {
+    const zerosToAdd = 64 - inputString.length;
+    const zeroPadding = '0'.repeat(zerosToAdd);
+    return zeroPadding + inputString;
+  }
+}
+
+const bufferToHexString = (bufferData) => {
+  const byteArray = Array.from(bufferData);
+  const hexString = byteArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+  return hexString
+}
+
+const bufferToDecimalString = (bufferData) => {
+  const hexString = bufferToHexString(bufferData)
+  const decimalNumber = BigInt('0x' + hexString);
+  const decimalString = decimalNumber.toString();
+  return decimalString
+}
+
+const hexStringToDecimalString = (hexString) => {
+  const decimalNumber = BigInt('0x' + hexString);
+  const decimalString = decimalNumber.toString();
+  return decimalString
+}
+
+const decimalStringToHexString = (decimalString) => {
+  return decimalString.toString(16)
+}
+
+const hexStringToBuffer = (hexString) => {
+  const byteArray = Buffer.from(hexString, 'hex');
+  return byteArray
+}
+
+const decimalStringToBuffer = (decimalString) => {
+  const hexString = decimalString.toString(16);
+  const byteArray = Buffer.from(hexString, 'hex');
+  return byteArray
+}
+
 
 module.exports = {
   stringizing,

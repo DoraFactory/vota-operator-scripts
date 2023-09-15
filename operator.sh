@@ -7,11 +7,7 @@ compile_and_ts_and_witness() {
   COORDINATOR_KEY=$2
   STATE_SALT=$3
   rm -r build/
-  # if [ ! -d "keys" ]; then
-  #   curl -O https://vota-zkey.s3.ap-southeast-1.amazonaws.com/2115_zkeys.tar.gz
-  #   tar -zxf 2115_zkeys.tar.gz keys
-  #   rm -r 2115_zkeys.tar.gz
-  # fi
+
   if [ ! -d "zkeys" ]; then
     curl -O https://vota-zkey.s3.ap-southeast-1.amazonaws.com/2115_zkeys.tar.gz
     tar -zxf 2115_zkeys.tar.gz zkeys
@@ -122,5 +118,3 @@ if [ -f "$env_file" ]; then
 else
     echo ".env 文件不存在或不可读取。"
 fi
-
-
