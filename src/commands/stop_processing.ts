@@ -1,24 +1,24 @@
-import type { CommandModule } from "yargs";
-import path from "path";
-import { Uint256, ProofType } from "../../ts/Maci.types";
-import {getContractSignerClient, readAndParseJsonFile} from "../utils";
+import type { CommandModule } from 'yargs';
+
+import { getContractSignerClient } from '../utils';
 
 const commandModule: CommandModule = {
-  command: "stop-processing",
+	command: 'stop-processing',
 
-  describe: "Stop processing period",
+	describe: 'Stop processing period',
 
-  builder(yargs) {
-    return yargs;
-  },
+	builder(yargs) {
+		return yargs;
+	},
 
-  async handler() {
-    console.log(`stop processing period`)
-    const maci = await getContractSignerClient();
-    const res = await maci.stopProcessingPeriod();
-    console.log(res)
-    process.exit(0);
-  },
+	async handler() {
+		console.log(`stop processing period`);
+		const maci = await getContractSignerClient();
+		const res = await maci.stopProcessingPeriod();
+		console.log(res);
+
+		process.exit(0);
+	},
 };
 
 export default commandModule;

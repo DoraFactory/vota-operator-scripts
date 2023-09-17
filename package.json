@@ -7,7 +7,7 @@
     "access": "public"
   },
   "engines": {
-    "node": ">=18"
+    "node": "18.x"
   },
   "exports": {
     ".": "./dist/index.js"
@@ -23,7 +23,6 @@
     "clean": "npm run clean:js",
     "clean:js": "rimraf dist",
     "dev": "tsup --watch",
-    "lint": "eslint . --ext .ts",
     "genOperatorKey": "node js/genOperatorKey.js",
     "startVoting": "node ./dist/operator.mjs start-voting",
     "stopVoting": "node ./dist/operator.mjs stop-voting",
@@ -34,8 +33,9 @@
     "stopProcessing": "node ./dist/operator.mjs stop-processing",
     "processTally": "node ./dist/operator.mjs process-tally",
     "stopTallying": "node ./dist/operator.mjs stop-tallying",
-    "allTally": "npm run startProcess && npm run genProof && npm run processMessage && npm run stopProcessing && npm run processTally && npm run stopTallying",
-    "setRoundInfo": "node ./dist/operator.mjs set-round-info"
+    "tally": "node ./dist/operator.mjs tally",
+    "setRoundInfo": "node ./dist/operator.mjs set-round-info",
+    "lint": "eslint . --ext .ts"
   },
   "license": "ISC",
   "dependencies": {
@@ -81,6 +81,11 @@
     "zod-validation-error": "^1.3.0"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.31.0",
+    "@typescript-eslint/parser": "^4.31.0",
+    "eslint": "^7.32.0",
+    "eslint-plugin-no-loops": "^0.3.0",
+    "eslint-plugin-shopify": "^35.1.0",
     "@types/yargs": "^17.0.24",
     "snarkjs": "^0.7.0"
   }
