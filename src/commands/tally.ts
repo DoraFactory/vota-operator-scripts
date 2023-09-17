@@ -207,7 +207,7 @@ const commandModule: CommandModule = {
 				});
 				console.log(stop_tallying_res);
 			} else if (period.status === 'tallying') {
-				execGenInput();
+				// execGenInput();
 				const commitments = await readAndParseJsonFile(
 					`${path}/build/inputs/commitments.json`
 				);

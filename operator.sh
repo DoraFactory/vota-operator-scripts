@@ -5,7 +5,6 @@ compile_and_ts_and_witness() {
   echo "operator get proof"
   CONTRACT_ADDRESS=$1
   COORDINATOR_KEY=$2
-  STATE_SALT=$3
   rm -r build/
 
   if [ ! -d "zkeys" ]; then
@@ -27,7 +26,7 @@ compile_and_ts_and_witness() {
   echo "get contract logs and gen input"
   node dist/operator.mjs query-max-vote-options
   node js/getContractLogs.js $CONTRACT_ADDRESS
-  node js/genInputs.js $COORDINATOR_KEY $STATE_SALT
+  node js/genInputs.js $COORDINATOR_KEY
   #compile circuits
 #   mkdir -p build/r1cs
 
@@ -108,13 +107,7 @@ if [ -f "$env_file" ]; then
         exit 1
     fi
 
-    # 检查STATE_SALT是否为空
-    if [ -z "$STATE_SALT" ]; then
-        echo "Error: STATE_SALT为空。"
-        exit 1
-    fi
-
-    compile_and_ts_and_witness "$CONTRACT_ADDRESS" "$COORDINATOR_KEY" "$STATE_SALT"
+    compile_and_ts_and_witness "$CONTRACT_ADDRESS" "$COORDINATOR_KEY"
 else
     echo ".env 文件不存在或不可读取。"
 fi
