@@ -23,7 +23,7 @@
     "clean": "npm run clean:js",
     "clean:js": "rimraf dist",
     "dev": "tsup --watch",
-    "genOperatorKey": "node js/genOperatorKey.js",
+    "key": "node js/genOperatorKey.js",
     "startVoting": "node ./dist/operator.mjs start-voting",
     "stopVoting": "node ./dist/operator.mjs stop-voting",
     "startProcess": "node ./dist/operator.mjs start-process",
@@ -33,7 +33,7 @@
     "stopProcessing": "node ./dist/operator.mjs stop-processing",
     "processTally": "node ./dist/operator.mjs process-tally",
     "stopTallying": "node ./dist/operator.mjs stop-tallying",
-    "tally": "node ./dist/operator.mjs tally",
+    "tally": "cp credential.env .env && node ./dist/operator.mjs tally",
     "setRoundInfo": "node ./dist/operator.mjs set-round-info",
     "lint": "eslint . --ext .ts"
   },

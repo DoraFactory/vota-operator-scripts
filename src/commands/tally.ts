@@ -12,7 +12,7 @@ import {
 const commandModule: CommandModule = {
 	command: 'tally',
 
-	describe: 'tally',
+	describe: 'all tally func',
 
 	builder(yargs) {
 		return yargs;
