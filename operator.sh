@@ -54,11 +54,11 @@ compile_and_ts_and_witness() {
         # generate public and proof
         echo $(date +"%T") "start generate proof"
         mkdir -p build/proof/msg_$number
-        snarkjs g16p "zkeys/zkey/msg_1.zkey" "build/wtns/msg_$number.wtns" "build/proof/msg_$number/proof.json" build/public/msg-public_$number.json
+        node node_modules/snarkjs/cli.js g16p "zkeys/zkey/msg_1.zkey" "build/wtns/msg_$number.wtns" "build/proof/msg_$number/proof.json" build/public/msg-public_$number.json
 
         # verify proof by snarkjs
         echo $(date +"%T") "start verify the msg proof"
-        snarkjs groth16 verify zkeys/verification_key/msg/verification_key.json build/public/msg-public_$number.json build/proof/msg_$number/proof.json
+        node node_modules/snarkjs/cli.js groth16 verify zkeys/verification_key/msg/verification_key.json build/public/msg-public_$number.json build/proof/msg_$number/proof.json
 
         # start generate final proof
         echo $(date +"%T") "start transform the proof data format"
@@ -77,11 +77,11 @@ compile_and_ts_and_witness() {
         # generate public and proof
         echo $(date +"%T") "start generate proof"
         mkdir -p build/proof/tally_$number
-        snarkjs g16p "zkeys/zkey/tally_1.zkey" "build/wtns/tally_$number.wtns" "build/proof/tally_$number/proof.json" build/public/tally-public_$number.json
+        node node_modules/snarkjs/cli.js g16p "zkeys/zkey/tally_1.zkey" "build/wtns/tally_$number.wtns" "build/proof/tally_$number/proof.json" build/public/tally-public_$number.json
 
         # verify proof by snarkjs
         echo $(date +"%T") "start verify the tally proof"
-        snarkjs groth16 verify zkeys/verification_key/tally/verification_key.json build/public/tally-public_$number.json build/proof/tally_$number/proof.json
+        node node_modules/snarkjs/cli.js groth16 verify zkeys/verification_key/tally/verification_key.json build/public/tally-public_$number.json build/proof/tally_$number/proof.json
 
         # start generate final proof
         echo $(date +"%T") "start transform the proof data format"
