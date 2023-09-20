@@ -1,60 +1,113 @@
 #!/bin/sh
+env_file=".env"
 
 compile_and_ts_and_witness() {
+  echo "operator get proof"
   CONTRACT_ADDRESS=$1
   COORDINATOR_KEY=$2
-  STATE_SALT=$3
+  rm -r build/
 
+  if [ ! -d "zkeys" ]; then
+    curl -O https://vota-zkey.s3.ap-southeast-1.amazonaws.com/2115_zkeys.tar.gz
+    tar -zxf 2115_zkeys.tar.gz zkeys
+    rm -f 2115_zkeys.tar.gz
+  else
+    read -p "The keys folder already exists, need re-download it? (y/n): " choice
+    if [ "$choice" == "y" ]; then
+      rm -rf zkeys
+      curl -O https://vota-zkey.s3.ap-southeast-1.amazonaws.com/2115_zkeys.tar.gz
+      tar -zxf 2115_zkeys.tar.gz zkeys
+      rm -f 2115_zkeys.tar.gz
+    fi
+  fi
   # get inputs by js
   mkdir -p build/inputs
-  npm install
+
+  echo "get contract logs and gen input"
+  node dist/operator.mjs query-max-vote-options
   node js/getContractLogs.js $CONTRACT_ADDRESS
-  node js/genInputs.js $COORDINATOR_KEY $STATE_SALT
-
+  node js/genInputs.js $COORDINATOR_KEY
   #compile circuits
-  mkdir -p build/r1cs
+#   mkdir -p build/r1cs
 
-  echo $(date +"%T") "compile the circuit into r1cs, wasm and sym"
-  itime="$(date -u +%s)"
-  circom circuits/prod/msg.circom --r1cs --wasm --sym -o build/r1cs
-  circom circuits/prod/tally.circom --r1cs --wasm --sym -o build/r1cs
-  ftime="$(date -u +%s)"
-  echo "	($(($(date -u +%s)-$itime))s)"
+#   echo $(date +"%T") "compile the circuit into r1cs, wasm and sym"
+#   itime="$(date -u +%s)"
+#   circom circuits/prod/msg.circom --r1cs --wasm --sym -o build/r1cs
+#   circom circuits/prod/tally.circom --r1cs --wasm --sym -o build/r1cs
+#   ftime="$(date -u +%s)"
+#   echo "	($(($(date -u +%s)-$itime))s)"
 
   # generate witness
   echo $(date +"%T") "start generate witness"
   mkdir -p build/wtns
 
-  node "build/r1cs/msg_js/generate_witness.js" "build/r1cs/msg_js/msg.wasm" "build/inputs/msg-input_0000.json" "./build/wtns/msg.wtns"
-  node "build/r1cs/tally_js/generate_witness.js" "build/r1cs/tally_js/tally.wasm" "build/inputs/tally-input_0000.json" "./build/wtns/tally.wtns"
+  folder_path="./build/inputs"
+  mkdir -p build/public
 
- # generate public and proof
- echo $(date +"%T") "start generate proof"
- mkdir -p build/proof/msg
- mkdir -p build/proof/tally
- mkdir -p build/public
- snarkjs g16p "keys/zkey/msg_1.zkey" "build/wtns/msg.wtns" "build/proof/msg/proof.json" build/public/msg-public.json
- snarkjs g16p "keys/zkey/tally_1.zkey" "build/wtns/tally.wtns" "build/proof/tally/proof.json" build/public/tally-public.json
+  for file in "$folder_path"/msg-input_*.json; do
+      if [ -f "$file" ]; then
+        filename=$(basename "$file") 
+        number=$(echo "$filename" | cut -d '_' -f 2 | cut -d '.' -f 1)
+        node "zkeys/r1cs/msg_js/generate_witness.js" "zkeys/r1cs/msg_js/msg.wasm" $file "./build/wtns/msg_$number.wtns"
 
- # verify proof by snarkjs
- echo $(date +"%T") "start verify the msg proof"
- snarkjs groth16 verify keys/verification_key/msg/verification_key.json build/public/msg-public.json build/proof/msg/proof.json
- echo $(date +"%T") "start verify the tally proof"
- snarkjs groth16 verify keys/verification_key/tally/verification_key.json build/public/tally-public.json build/proof/tally/proof.json
+        # generate public and proof
+        echo $(date +"%T") "start generate proof"
+        mkdir -p build/proof/msg_$number
+        node node_modules/snarkjs/cli.js g16p "zkeys/zkey/msg_1.zkey" "build/wtns/msg_$number.wtns" "build/proof/msg_$number/proof.json" build/public/msg-public_$number.json
 
- # start generate final proof
- echo $(date +"%T") "start transform the proof data format"
- mkdir -p build/final_proof/msg
- mkdir -p build/final_proof/tally
- mkdir -p build/final_verification_key/msg
- mkdir -p build/final_verification_key/tally
- cd prove/ && npm install && cd src && node adapt_maci.js msg && node adapt_maci.js tally
+        # verify proof by snarkjs
+        echo $(date +"%T") "start verify the msg proof"
+        node node_modules/snarkjs/cli.js groth16 verify zkeys/verification_key/msg/verification_key.json build/public/msg-public_$number.json build/proof/msg_$number/proof.json
+
+        # start generate final proof
+        echo $(date +"%T") "start transform the proof data format"
+        mkdir -p build/final_proof/msg_$number
+        mkdir -p build/final_verification_key/msg_$number
+        node ./prove/src/adapt_maci.js msg $number
+      fi
+  done
+
+  for file in "$folder_path"/tally-input_*.json; do
+      if [ -f "$file" ]; then
+        filename=$(basename "$file") 
+        number=$(echo "$filename" | cut -d '_' -f 2 | cut -d '.' -f 1)
+        node "zkeys/r1cs/tally_js/generate_witness.js" "zkeys/r1cs/tally_js/tally.wasm" $file "./build/wtns/tally_$number.wtns"
+
+        # generate public and proof
+        echo $(date +"%T") "start generate proof"
+        mkdir -p build/proof/tally_$number
+        node node_modules/snarkjs/cli.js g16p "zkeys/zkey/tally_1.zkey" "build/wtns/tally_$number.wtns" "build/proof/tally_$number/proof.json" build/public/tally-public_$number.json
+
+        # verify proof by snarkjs
+        echo $(date +"%T") "start verify the tally proof"
+        node node_modules/snarkjs/cli.js groth16 verify zkeys/verification_key/tally/verification_key.json build/public/tally-public_$number.json build/proof/tally_$number/proof.json
+
+        # start generate final proof
+        echo $(date +"%T") "start transform the proof data format"
+        mkdir -p build/final_proof/tally_$number
+        mkdir -p build/final_verification_key/tally_$number
+        node ./prove/src/adapt_maci.js tally $number
+      fi
+  done
  echo "everything is ok"
 }
 
-echo "compile & trustesetup for circuit"
 
-CONTRACT_ADDRESS=$1
-COORDINATOR_KEY=$2
-STATE_SALT=$3
-compile_and_ts_and_witness "$CONTRACT_ADDRESS" "$COORDINATOR_KEY" "$STATE_SALT"
+if [ -f "$env_file" ]; then
+    source "$env_file"
+       # 检查CONTRACT_ADDRESS是否为空
+    if [ -z "$CONTRACT_ADDRESS" ]; then
+        echo "Error: CONTRACT_ADDRESS为空。"
+        exit 1
+    fi
+
+    # 检查COORDINATOR_KEY是否为空
+    if [ -z "$COORDINATOR_KEY" ]; then
+        echo "Error: COORDINATOR_KEY为空。"
+        exit 1
+    fi
+
+    compile_and_ts_and_witness "$CONTRACT_ADDRESS" "$COORDINATOR_KEY"
+else
+    echo ".env 文件不存在或不可读取。"
+fi
