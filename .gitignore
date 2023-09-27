@@ -5,4 +5,5 @@ ptau/powersOfTau28_hez_final_22.ptau
 .env
 dist
 zkeys/
-2115_zkeys.tar.gz
+*.tar.gz
+secret.env
