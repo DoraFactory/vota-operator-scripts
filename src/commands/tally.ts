@@ -96,7 +96,7 @@ const commandModule: CommandModule = {
             console.log("");
           }
 
-          console.log("stopTalling");
+          console.log("stopTallying");
 
           const results: Uint256[] = await readAndParseJsonFile(
             `${path}/build/inputs/result.json`
@@ -183,7 +183,7 @@ const commandModule: CommandModule = {
           console.log("");
         }
 
-        console.log("stopTalling");
+        console.log("stopTallying");
 
         const results: Uint256[] = await readAndParseJsonFile(
           `${path}/build/inputs/result.json`
@@ -235,7 +235,7 @@ const commandModule: CommandModule = {
           console.log("");
         }
 
-        console.log("stopTalling");
+        console.log("stopTallying");
 
         const results: Uint256[] = await readAndParseJsonFile(
           `${path}/build/inputs/result.json`
