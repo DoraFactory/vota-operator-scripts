@@ -5,7 +5,7 @@ compile_and_ts_and_witness() {
   CONTRACT_ADDRESS=$1
   COORDINATOR_KEY=$2
   rm -r build/
-  echo "\033[32mOperator downloading zkey: \033[0m"
+  echo -e "\033[32mOperator downloading zkey: \033[0m"
 
   if [ ! -d "zkeys" ]; then
     curl -O https://vota-zkey.s3.ap-southeast-1.amazonaws.com/2115_zkeys.tar.gz
@@ -23,7 +23,7 @@ compile_and_ts_and_witness() {
   # get inputs by js
   mkdir -p build/inputs
 
-  echo "\033[32mGet MACI messages from the smart contract and generate input: \033[0m"
+  echo -e "\033[32mGet MACI messages from the smart contract and generate input: \033[0m"
   node dist/operator.mjs query-max-vote-options
   node js/getContractLogs.js $CONTRACT_ADDRESS
   node js/genInputs.js $COORDINATOR_KEY
@@ -89,7 +89,7 @@ compile_and_ts_and_witness() {
         node ./prove/src/adapt_maci.js tally $number
       fi
   done
- echo "\033[34mSuccessfully generated proof \033[0m"
+ echo -e "\033[34mSuccessfully generated proof \033[0m"
 }
 
 

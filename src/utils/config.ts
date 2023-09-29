@@ -107,6 +107,6 @@ export function execGenInput() {
       `Tally script execution failed, error code: ${result.status}`
     );
   } else {
-    console.log("Tally script successfully executed.");
+    console.log("Tally script successfully executed.\n");
   }
 }

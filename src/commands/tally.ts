@@ -25,6 +25,9 @@ const commandModule: CommandModule = {
 
     try {
       const period = await maci.getPeriod();
+      console.log(
+        chalk.blue(`The current period of this Round is ${period.status}`)
+      );
       const { start_time, end_time } = await maci.getVotingTime();
       const now = new Date().getTime() * 10 ** 6;
       if (period.status === "pending" || period.status === "voting") {
@@ -74,6 +77,7 @@ const commandModule: CommandModule = {
 
           const stop_processing_res = await maci.stopProcessingPeriod();
           console.log(stop_processing_res);
+          console.log("");
 
           console.log(chalk.green("processTallying"));
 
@@ -81,6 +85,7 @@ const commandModule: CommandModule = {
             const tailNum = formatNumber(i);
             console.log(`tally_${tailNum}`);
             const newTallyCommitment = commitments[`tally_${tailNum}`];
+            console.log(newTallyCommitment);
             const tally_proof = await readAndParseJsonFile(
               `${path}/build/final_proof/tally_${tailNum}/proof_hex.json`
             );
@@ -120,6 +125,11 @@ const commandModule: CommandModule = {
             salt,
           });
           console.log(stop_tallying_res);
+          console.log(
+            chalk.blue(
+              "All zero-knowledge proofs are successfully verified on-chain."
+            )
+          );
         } else {
           console.log("Did not voting end");
         }
@@ -161,17 +171,18 @@ const commandModule: CommandModule = {
           }
           console.log("");
         }
-        console.log(chalk.green("stopProcessing"));
 
+        console.log(chalk.green("stopProcessing"));
         const stop_processing_res = await maci.stopProcessingPeriod();
         console.log(stop_processing_res);
+        console.log("");
 
         console.log(chalk.green("processTallying"));
-
         for (let i = 0; i < tallyCount; i += 1) {
           const tailNum = formatNumber(i);
           console.log(`tally_${tailNum}`);
           const newTallyCommitment = commitments[`tally_${tailNum}`];
+          console.log(newTallyCommitment);
           const tally_proof = await readAndParseJsonFile(
             `${path}/build/final_proof/tally_${tailNum}/proof_hex.json`
           );
@@ -196,25 +207,24 @@ const commandModule: CommandModule = {
         }
 
         console.log(chalk.green("stopTallying"));
-
         const results: Uint256[] = await readAndParseJsonFile(
           `${path}/build/inputs/result.json`
         );
-
         const tally_final_input = await readAndParseJsonFile(
           `${path}/build/inputs/tally-input_${formatNumber(
             tallyCount - 1
           )}.json`
         );
         const salt: Uint256 = tally_final_input.newResultsRootSalt;
-
         const stop_tallying_res = await maci.stopTallyingPeriod({
           results,
           salt,
         });
         console.log(stop_tallying_res);
         console.log(
-          "All zero-knowledge proofs are successfully verified on-chain."
+          chalk.blue(
+            "All zero-knowledge proofs are successfully verified on-chain."
+          )
         );
       } else if (period.status === "tallying") {
         const commitments = await readAndParseJsonFile(
@@ -270,15 +280,19 @@ const commandModule: CommandModule = {
         });
         console.log(stop_tallying_res);
         console.log(
-          "All zero-knowledge proofs are successfully verified on-chain."
+          chalk.blue(
+            "All zero-knowledge proofs are successfully verified on-chain."
+          )
         );
       } else if (period.status === "ended") {
         console.log(
-          "All zero-knowledge proofs are successfully verified on-chain."
+          chalk.blue(
+            "All zero-knowledge proofs are successfully verified on-chain."
+          )
         );
       }
     } catch {
-      console.log("Tally failed.");
+      console.log(chalk.red("Tally failed."));
     }
 
     process.exit(0);
