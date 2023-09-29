@@ -1,4 +1,5 @@
 import type { CommandModule } from "yargs";
+import chalk from "chalk";
 
 import { Uint256, ProofType } from "../../ts/Maci.types";
 import {
@@ -28,7 +29,7 @@ const commandModule: CommandModule = {
       const now = new Date().getTime() * 10 ** 6;
       if (period.status === "pending" || period.status === "voting") {
         if (Number(end_time) < now) {
-          console.log("start processing");
+          console.log(chalk.green("startProcessing"));
           const start_process_res = await maci.startProcessPeriod();
           console.log(start_process_res);
           execGenInput();
@@ -37,7 +38,10 @@ const commandModule: CommandModule = {
           );
           const { msgCount, tallyCount } = countMsgAndTally(commitments);
 
-          console.log("processMessage");
+          console.log(
+            "Submitting on-chain transactions to verify zero-knowledge proofs."
+          );
+          console.log(chalk.green("processMessage"));
 
           for (let i = 0; i < msgCount; i += 1) {
             const tailNum = formatNumber(i);
@@ -60,16 +64,18 @@ const commandModule: CommandModule = {
               });
               console.log(process_message_res);
             } catch {
-              console.log("Some thing is wrong");
+              console.log(
+                "Zero-knowledge proof verification failed. (processMessage)"
+              );
             }
             console.log("");
           }
-          console.log("stopProcessing");
+          console.log(chalk.green("stopProcessing"));
 
           const stop_processing_res = await maci.stopProcessingPeriod();
           console.log(stop_processing_res);
 
-          console.log("processTallying");
+          console.log(chalk.green("processTallying"));
 
           for (let i = 0; i < tallyCount; i += 1) {
             const tailNum = formatNumber(i);
@@ -91,24 +97,24 @@ const commandModule: CommandModule = {
               });
               console.log(process_tally_res);
             } catch {
-              console.log("Some thing is wrong");
+              console.log(
+                "Zero-knowledge proof verification failed. (processTally)"
+              );
             }
             console.log("");
           }
 
-          console.log("stopTallying");
+          console.log(chalk.green("stopTallying"));
 
           const results: Uint256[] = await readAndParseJsonFile(
             `${path}/build/inputs/result.json`
           );
-
           const tally_final_input = await readAndParseJsonFile(
             `${path}/build/inputs/tally-input_${formatNumber(
               tallyCount - 1
             )}.json`
           );
           const salt: Uint256 = tally_final_input.newResultsRootSalt;
-
           const stop_tallying_res = await maci.stopTallyingPeriod({
             results,
             salt,
@@ -124,8 +130,10 @@ const commandModule: CommandModule = {
         );
         const { msgCount, tallyCount } = countMsgAndTally(commitments);
 
-        console.log("processMessage");
-
+        console.log(
+          "Submitting on-chain transactions to verify zero-knowledge proofs."
+        );
+        console.log(chalk.green("processMessage"));
         for (let i = 0; i < msgCount; i += 1) {
           const tailNum = formatNumber(i);
           console.log(`msg_${tailNum}`);
@@ -147,16 +155,18 @@ const commandModule: CommandModule = {
             });
             console.log(process_message_res);
           } catch {
-            console.log("Some thing is wrong");
+            console.log(
+              "Zero-knowledge proof verification failed. (processMessage)"
+            );
           }
           console.log("");
         }
-        console.log("stopProcessing");
+        console.log(chalk.green("stopProcessing"));
 
         const stop_processing_res = await maci.stopProcessingPeriod();
         console.log(stop_processing_res);
 
-        console.log("processTallying");
+        console.log(chalk.green("processTallying"));
 
         for (let i = 0; i < tallyCount; i += 1) {
           const tailNum = formatNumber(i);
@@ -178,12 +188,14 @@ const commandModule: CommandModule = {
             });
             console.log(process_tally_res);
           } catch {
-            console.log("Some thing is wrong");
+            console.log(
+              "Zero-knowledge proof verification failed. (processTally)"
+            );
           }
           console.log("");
         }
 
-        console.log("stopTallying");
+        console.log(chalk.green("stopTallying"));
 
         const results: Uint256[] = await readAndParseJsonFile(
           `${path}/build/inputs/result.json`
@@ -201,15 +213,20 @@ const commandModule: CommandModule = {
           salt,
         });
         console.log(stop_tallying_res);
+        console.log(
+          "All zero-knowledge proofs are successfully verified on-chain."
+        );
       } else if (period.status === "tallying") {
-        // execGenInput();
         const commitments = await readAndParseJsonFile(
           `${path}/build/inputs/commitments.json`
         );
         const { msgCount, tallyCount } = countMsgAndTally(commitments);
 
-        console.log("processTallying");
+        console.log(
+          "Submitting on-chain transactions to verify zero-knowledge proofs."
+        );
 
+        console.log(chalk.green("processTallying"));
         for (let i = 0; i < tallyCount; i += 1) {
           const tailNum = formatNumber(i);
           console.log(`tally_${tailNum}`);
@@ -230,34 +247,38 @@ const commandModule: CommandModule = {
             });
             console.log(process_tally_res);
           } catch {
-            console.log("Some thing is wrong");
+            console.log(
+              "Zero-knowledge proof verification failed. (processTally)"
+            );
           }
           console.log("");
         }
 
-        console.log("stopTallying");
-
+        console.log(chalk.green("stopTallying"));
         const results: Uint256[] = await readAndParseJsonFile(
           `${path}/build/inputs/result.json`
         );
-
         const tally_final_input = await readAndParseJsonFile(
           `${path}/build/inputs/tally-input_${formatNumber(
             tallyCount - 1
           )}.json`
         );
         const salt: Uint256 = tally_final_input.newResultsRootSalt;
-
         const stop_tallying_res = await maci.stopTallyingPeriod({
           results,
           salt,
         });
         console.log(stop_tallying_res);
+        console.log(
+          "All zero-knowledge proofs are successfully verified on-chain."
+        );
       } else if (period.status === "ended") {
-        console.log("This round is already ended");
+        console.log(
+          "All zero-knowledge proofs are successfully verified on-chain."
+        );
       }
     } catch {
-      console.log("Some thing is wrong.");
+      console.log("Tally failed.");
     }
 
     process.exit(0);

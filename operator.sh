@@ -2,17 +2,17 @@
 env_file=".env"
 
 compile_and_ts_and_witness() {
-  echo "operator get proof"
   CONTRACT_ADDRESS=$1
   COORDINATOR_KEY=$2
   rm -r build/
+  echo "\033[32mOperator downloading zkey: \033[0m"
 
   if [ ! -d "zkeys" ]; then
     curl -O https://vota-zkey.s3.ap-southeast-1.amazonaws.com/2115_zkeys.tar.gz
     tar -zxf 2115_zkeys.tar.gz zkeys
     rm -f 2115_zkeys.tar.gz
   else
-    read -p "The keys folder already exists, need re-download it? (y/n): " choice
+    read -p "Zkey folder already exists, do you want to override? (y/n): " choice
     if [ "$choice" == "y" ]; then
       rm -rf zkeys
       curl -O https://vota-zkey.s3.ap-southeast-1.amazonaws.com/2115_zkeys.tar.gz
@@ -23,7 +23,7 @@ compile_and_ts_and_witness() {
   # get inputs by js
   mkdir -p build/inputs
 
-  echo "get contract logs and gen input"
+  echo "\033[32mGet MACI messages from the smart contract and generate input: \033[0m"
   node dist/operator.mjs query-max-vote-options
   node js/getContractLogs.js $CONTRACT_ADDRESS
   node js/genInputs.js $COORDINATOR_KEY
@@ -89,25 +89,23 @@ compile_and_ts_and_witness() {
         node ./prove/src/adapt_maci.js tally $number
       fi
   done
- echo "everything is ok"
+ echo "\033[34mSuccessfully generated proof \033[0m"
 }
 
 
 if [ -f "$env_file" ]; then
     source "$env_file"
-       # 检查CONTRACT_ADDRESS是否为空
     if [ -z "$CONTRACT_ADDRESS" ]; then
-        echo "Error: CONTRACT_ADDRESS为空。"
+        echo "Error: CONTRACT_ADDRESS is empty."
         exit 1
     fi
 
-    # 检查COORDINATOR_KEY是否为空
     if [ -z "$COORDINATOR_KEY" ]; then
-        echo "Error: COORDINATOR_KEY为空。"
+        echo "Error: COORDINATOR_KEY is empty."
         exit 1
     fi
 
     compile_and_ts_and_witness "$CONTRACT_ADDRESS" "$COORDINATOR_KEY"
 else
-    echo ".env 文件不存在或不可读取。"
+    echo ".env does not exist or is unreadable."
 fi

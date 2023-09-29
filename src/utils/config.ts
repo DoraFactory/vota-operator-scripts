@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import { spawnSync } from "child_process";
+import chalk from "chalk";
 
 import { Secp256k1HdWallet } from "@cosmjs/launchpad";
 import { GasPrice } from "@cosmjs/stargate";
@@ -91,20 +92,21 @@ export function formatNumber(number: number): string {
 }
 
 export function execGenInput() {
-  console.log("genInput");
+  console.log(chalk.green("genInput (download zkey and MACI messages):"));
 
   const scriptPath = "./operator.sh";
 
   const result = spawnSync("bash", [scriptPath], {
-    stdio: "inherit", // 将子进程的stdin、stdout和stderr连接到当前进程
+    stdio: "inherit",
   });
 
   if (result.error) {
-    console.error(`执行脚本时出错: ${result.error.message}`);
+    console.error(`Tally script execution failed: ${result.error.message}`);
   } else if (result.status !== 0) {
-    console.error(`脚本执行失败，退出码: ${result.status}`);
+    console.error(
+      `Tally script execution failed, error code: ${result.status}`
+    );
   } else {
-    console.log("脚本成功执行");
-    // 在这里执行其他命令
+    console.log("Tally script successfully executed.");
   }
 }

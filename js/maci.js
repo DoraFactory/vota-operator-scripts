@@ -43,7 +43,7 @@ class MACI {
     console.log([
       '',
       'init MACI '.padEnd(40, '='),
-      '- vo tree root:\t\t' + emptyVOTree.root,
+      '- vote option tree root:\t\t' + emptyVOTree.root,
       '- state tree root:\t' + stateTree.root,
       '',
     ].join('\n'))
