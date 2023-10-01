@@ -339,6 +339,7 @@ const commandModule: CommandModule = {
           index += 1;
         }
         let results_data = formatResults(all_result, all_votes);
+        console.log("This round has already ended.\n");
         console.log(results_data);
         console.log(
           chalk.blue(
