@@ -10,6 +10,8 @@ import stop_tallying from "./stop_tallying";
 import set_round_info from "./set_round_info";
 import query_max_vote_options from "./query_max_vote_options";
 import tally from "./tally";
+import get_result from "./get_result";
+import get_all_result from "./get_all_result";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Each command has different options
 export const commands: CommandModule<any, any>[] = [
@@ -23,4 +25,6 @@ export const commands: CommandModule<any, any>[] = [
   set_round_info,
   query_max_vote_options,
   tally,
+  get_result,
+  get_all_result,
 ];

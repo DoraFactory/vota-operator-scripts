@@ -3,7 +3,7 @@ import { spawnSync } from "child_process";
 import chalk from "chalk";
 
 import { Secp256k1HdWallet } from "@cosmjs/launchpad";
-import { GasPrice } from "@cosmjs/stargate";
+import { GasPrice, SigningStargateClient } from "@cosmjs/stargate";
 import {
   SigningCosmWasmClient,
   SigningCosmWasmClientOptions,
@@ -89,6 +89,29 @@ export function countMsgAndTally(jsonData: any): {
 export function formatNumber(number: number): string {
   const formattedNumber = number.toString().padStart(4, "0");
   return formattedNumber;
+}
+
+const exeNumber = (inputString: string) => {
+  const match = inputString.match(/0+\d+$/); // 匹配末尾的数字
+  if (match) {
+    return Number(match[0]);
+  }
+  return "";
+};
+
+export function formatResults(all_result: string, results: string[]) {
+  let all_vote = exeNumber(all_result);
+  console.log(`All vote power: ${all_vote}`);
+  let all_votes = ``;
+  let index = 0;
+  for (let result of results) {
+    let vote = exeNumber(result);
+    let vote_data = ((Number(vote) / Number(all_vote)) * 100).toFixed(4);
+    let vote_string_return = `option ${index}, vote power: ${vote}, vote ratios: ${vote_data}%\n`;
+    all_votes += vote_string_return;
+    index += 1;
+  }
+  return all_votes;
 }
 
 export function execGenInput() {

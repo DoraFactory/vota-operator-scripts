@@ -8,6 +8,7 @@ import {
   execGenInput,
   formatNumber,
   countMsgAndTally,
+  formatResults,
 } from "../utils";
 
 const commandModule: CommandModule = {
@@ -125,6 +126,20 @@ const commandModule: CommandModule = {
             salt,
           });
           console.log(stop_tallying_res);
+
+          let max_vote_options = Number(await maci.maxVoteOptions());
+          let all_result = await maci.getAllResult();
+          let all_votes = [];
+          let index = 0;
+
+          while (index < max_vote_options) {
+            let vote = await maci.getResult({ index: index.toString() });
+            all_votes.push(vote);
+            index += 1;
+          }
+          let results_data = formatResults(all_result, all_votes);
+          console.log(results_data);
+
           console.log(
             chalk.blue(
               "All zero-knowledge proofs are successfully verified on-chain."
@@ -221,6 +236,20 @@ const commandModule: CommandModule = {
           salt,
         });
         console.log(stop_tallying_res);
+
+        let max_vote_options = Number(await maci.maxVoteOptions());
+        let all_result = await maci.getAllResult();
+        let all_votes = [];
+        let index = 0;
+
+        while (index < max_vote_options) {
+          let vote = await maci.getResult({ index: index.toString() });
+          all_votes.push(vote);
+          index += 1;
+        }
+        let results_data = formatResults(all_result, all_votes);
+        console.log(results_data);
+
         console.log(
           chalk.blue(
             "All zero-knowledge proofs are successfully verified on-chain."
@@ -279,12 +308,38 @@ const commandModule: CommandModule = {
           salt,
         });
         console.log(stop_tallying_res);
+
+        let max_vote_options = Number(await maci.maxVoteOptions());
+        let all_result = await maci.getAllResult();
+        let all_votes = [];
+        let index = 0;
+
+        while (index < max_vote_options) {
+          let vote = await maci.getResult({ index: index.toString() });
+          all_votes.push(vote);
+          index += 1;
+        }
+        let results_data = formatResults(all_result, all_votes);
+        console.log(results_data);
+
         console.log(
           chalk.blue(
             "All zero-knowledge proofs are successfully verified on-chain."
           )
         );
       } else if (period.status === "ended") {
+        let max_vote_options = Number(await maci.maxVoteOptions());
+        let all_result = await maci.getAllResult();
+        let all_votes = [];
+        let index = 0;
+
+        while (index < max_vote_options) {
+          let vote = await maci.getResult({ index: index.toString() });
+          all_votes.push(vote);
+          index += 1;
+        }
+        let results_data = formatResults(all_result, all_votes);
+        console.log(results_data);
         console.log(
           chalk.blue(
             "All zero-knowledge proofs are successfully verified on-chain."
