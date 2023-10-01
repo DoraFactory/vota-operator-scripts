@@ -101,13 +101,13 @@ const exeNumber = (inputString: string) => {
 
 export function formatResults(all_result: string, results: string[]) {
   let all_vote = exeNumber(all_result);
-  console.log(`All vote power: ${all_vote}`);
+  // console.log(`All vote power: ${all_vote}`);
   let all_votes = ``;
   let index = 0;
   for (let result of results) {
     let vote = exeNumber(result);
     let vote_data = ((Number(vote) / Number(all_vote)) * 100).toFixed(4);
-    let vote_string_return = `option ${index}, vote power: ${vote}, vote ratios: ${vote_data}%\n`;
+    let vote_string_return = `option ${index}, vote ratios: ${vote_data}%\n`;
     all_votes += vote_string_return;
     index += 1;
   }
