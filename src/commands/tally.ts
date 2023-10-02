@@ -26,9 +26,7 @@ const commandModule: CommandModule = {
 
     try {
       const period = await maci.getPeriod();
-      console.log(
-        chalk.blue(`The current period of this Round is ${period.status}`)
-      );
+      console.log(chalk.blue(`The current MACI round is ${period.status}`));
       const { start_time, end_time } = await maci.getVotingTime();
       const now = new Date().getTime() * 10 ** 6;
       if (period.status === "pending" || period.status === "voting") {

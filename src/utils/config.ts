@@ -107,7 +107,9 @@ export function formatResults(all_result: string, results: string[]) {
   for (let result of results) {
     let vote = exeNumber(result);
     let vote_data = ((Number(vote) / Number(all_vote)) * 100).toFixed(4);
-    let vote_string_return = `option ${index}, vote ratios: ${vote_data}%\n`;
+    let vote_string_return = `Option ${
+      index + 1
+    }, Vote Percentage: ${vote_data}%\n`;
     all_votes += vote_string_return;
     index += 1;
   }
