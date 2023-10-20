@@ -414,14 +414,14 @@ template ProcessOne(stateTreeDepth, voteOptionTreeDepth) {
     //  ----------------------------------------------------------------------- 
     // 6. Generate a new state root
 
-    signal newBalance;
-    newBalance <== stateLeaf[STATE_LEAF_VOICE_CREDIT_BALANCE_IDX] + currentVoteWeight - cmdNewVoteWeight;
+    // signal newBalance;
+    // newBalance <== stateLeaf[STATE_LEAF_VOICE_CREDIT_BALANCE_IDX] + currentVoteWeight - cmdNewVoteWeight;
 
     // The new balance
     component voiceCreditBalanceMux = Mux1();
     voiceCreditBalanceMux.s <== transformer.isValid;
     voiceCreditBalanceMux.c[0] <== stateLeaf[STATE_LEAF_VOICE_CREDIT_BALANCE_IDX];
-    voiceCreditBalanceMux.c[1] <== newBalance;
+    voiceCreditBalanceMux.c[1] <== transformer.newBalance;
 
     // The new vote option root
     component newVoteOptionRootMux = Mux1();

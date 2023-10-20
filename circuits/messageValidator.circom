@@ -58,21 +58,30 @@ template MessageValidator() {
     signal input currentVotesForOption;
     signal input voteWeight;
 
+    signal output newBalance;
+
     // Check that voteWeight is < sqrt(field size), so voteWeight ^ 2 will not
     // overflow
     component validVoteWeight = LessEqThan(252);
     validVoteWeight.in[0] <== voteWeight;
     validVoteWeight.in[1] <== 147946756881789319005730692170996259609;
 
-    // Check that currentVoiceCreditBalance + costsForOption >= voteWeight
-    component costsForOption = Mux1();
-    costsForOption.s <== isQuadraticCost;
-    costsForOption.c[0] <== currentVotesForOption;
-    costsForOption.c[1] <== currentVotesForOption * currentVotesForOption;
+    // Check that currentVoiceCreditBalance + currentCostsForOption >= cost
+    component currentCostsForOption = Mux1();
+    currentCostsForOption.s <== isQuadraticCost;
+    currentCostsForOption.c[0] <== currentVotesForOption;
+    currentCostsForOption.c[1] <== currentVotesForOption * currentVotesForOption;
+
+    component cost = Mux1();
+    cost.s <== isQuadraticCost;
+    cost.c[0] <== voteWeight;
+    cost.c[1] <== voteWeight * voteWeight;
 
     component sufficientVoiceCredits = GreaterEqThan(252);
-    sufficientVoiceCredits.in[0] <== costsForOption.out + currentVoiceCreditBalance;
-    sufficientVoiceCredits.in[1] <== voteWeight;
+    sufficientVoiceCredits.in[0] <== currentCostsForOption.out + currentVoiceCreditBalance;
+    sufficientVoiceCredits.in[1] <== cost.out;
+
+    newBalance <== currentVoiceCreditBalance + currentCostsForOption.out - cost.out;
 
     component validUpdate = IsEqual();
     validUpdate.in[0] <== 6;
