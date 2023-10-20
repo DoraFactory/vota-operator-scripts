@@ -135,3 +135,43 @@ export function execGenInput() {
     console.log("Tally script successfully executed.\n");
   }
 }
+
+export async function balanceOf(address: string) {
+  try {
+    let url = `https://vota-rest.dorafactory.org/cosmos/bank/v1beta1/balances/${address}/by_denom?denom=peaka`;
+    const result = await fetch(url, {
+      method: "get",
+      mode: "cors",
+      cache: "no-cache",
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((response) => response.json());
+
+    return result["balance"]["amount"];
+  } catch {
+    return undefined;
+  }
+}
+
+export async function withdrawBalance() {
+  const contractAddress = process.env.CONTRACT_ADDRESS;
+
+  if (contractAddress === undefined) {
+    console.log("Missing CONTRACT_ADDRESS in .env");
+    process.exit(0);
+  }
+  const roundBalance = await balanceOf(contractAddress);
+  console.log(`Round address: ${contractAddress}`);
+  console.log(`Round balance: ${roundBalance}peaka`);
+  if (roundBalance !== "0" && roundBalance !== undefined) {
+    const maci = await getContractSignerClient();
+
+    const res = await maci.withdraw({});
+
+    console.log(res);
+  } else {
+    console.log("Balance is 0, no need to do withdraw anymore.");
+  }
+}

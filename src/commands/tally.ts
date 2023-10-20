@@ -9,6 +9,8 @@ import {
   formatNumber,
   countMsgAndTally,
   formatResults,
+  balanceOf,
+  withdrawBalance,
 } from "../utils";
 
 const commandModule: CommandModule = {
@@ -143,6 +145,8 @@ const commandModule: CommandModule = {
               "All zero-knowledge proofs are successfully verified on-chain."
             )
           );
+
+          withdrawBalance();
         } else {
           console.log("Did not voting end");
         }
@@ -253,6 +257,8 @@ const commandModule: CommandModule = {
             "All zero-knowledge proofs are successfully verified on-chain."
           )
         );
+
+        withdrawBalance();
       } else if (period.status === "tallying") {
         const commitments = await readAndParseJsonFile(
           `${path}/build/inputs/commitments.json`
@@ -325,6 +331,8 @@ const commandModule: CommandModule = {
             "All zero-knowledge proofs are successfully verified on-chain."
           )
         );
+
+        withdrawBalance();
       } else if (period.status === "ended") {
         let max_vote_options = Number(await maci.maxVoteOptions());
         let all_result = await maci.getAllResult();
@@ -344,6 +352,8 @@ const commandModule: CommandModule = {
             "All zero-knowledge proofs are successfully verified on-chain."
           )
         );
+
+        withdrawBalance();
       }
     } catch {
       console.log(chalk.red("Tally failed."));

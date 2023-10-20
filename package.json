@@ -34,7 +34,8 @@
 		"processTally": "node ./dist/operator.mjs process-tally",
 		"stopTallying": "node ./dist/operator.mjs stop-tallying",
 		"tally": "cp secret.env .env && node ./dist/operator.mjs tally",
-		"setRoundInfo": "node ./dist/operator.mjs set-round-info"
+		"setRoundInfo": "node ./dist/operator.mjs set-round-info",
+		"withdraw": "node ./dist/operator.mjs withdraw"
 	},
 	"license": "ISC",
 	"dependencies": {
