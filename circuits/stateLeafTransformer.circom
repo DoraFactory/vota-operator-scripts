@@ -9,6 +9,8 @@ include "../node_modules/circomlib/circuits/mux1.circom";
 template StateLeafTransformer() {
     var PACKED_CMD_LENGTH = 3;
 
+    signal input isQuadraticCost;
+
     // For the MessageValidator
     signal input numSignUps;
     signal input maxVoteOptions;
@@ -57,6 +59,8 @@ template StateLeafTransformer() {
     messageValidator.sigR8[0] <== cmdSigR8[0];
     messageValidator.sigR8[1] <== cmdSigR8[1];
     messageValidator.sigS <== cmdSigS;
+
+    messageValidator.isQuadraticCost <== isQuadraticCost;
 
     messageValidator.currentVoiceCreditBalance <== slVoiceCreditBalance;
     // messageValidator.slTimestamp <== slTimestamp;

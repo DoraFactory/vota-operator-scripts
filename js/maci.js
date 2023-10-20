@@ -23,6 +23,7 @@ class MACI {
     coordPriKey,
     maxVoteOptions,
     numSignUps,
+    isQuadraticCost = 0n,
   ) {
     this.stateTreeDepth = stateTreeDepth
     this.intStateTreeDepth = intStateTreeDepth
@@ -31,6 +32,7 @@ class MACI {
     this.maxVoteOptions = maxVoteOptions
     this.voSize = 5 ** voteOptionTreeDepth
     this.numSignUps = numSignUps
+    this.isQuadraticCost = isQuadraticCost
 
     this.coordinator = genKeypair(coordPriKey)
     this.pubKeyHasher = poseidon(this.coordinator.pubKey)
@@ -202,8 +204,14 @@ class MACI {
       return 'signature error'
     }
     const currVotes = s.voTree.leaf(voIdx)
-    if (s.balance + currVotes < cmd.newVotes) {
-      return 'insufficient balance'
+    if (this.isQuadraticCost) {
+      if (s.balance + currVotes * currVotes < cmd.newVotes * cmd.newVotes) {
+        return 'insufficient balance'
+      }
+    } else {
+      if (s.balance + currVotes < cmd.newVotes) {
+        return 'insufficient balance'
+      }
     }
   }
 
@@ -277,7 +285,8 @@ class MACI {
     // GEN INPUT JSON =========================================================
     const packedVals =
       BigInt(this.maxVoteOptions) +
-      (BigInt(this.numSignUps) << 32n)
+      (BigInt(this.numSignUps) << 32n) +
+      (BigInt(this.isQuadraticCost) << 64n)
     const batchStartHash = this.messages[batchStartIdx].prevHash
     const batchEndHash = this.messages[batchEndIdx - 1].hash
 

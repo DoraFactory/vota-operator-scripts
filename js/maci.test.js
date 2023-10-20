@@ -28,7 +28,8 @@ const main = new MACI(
   2, 1, 1, 5,               // tree config
   privateKeys[0],         // coordinator
   5,
-  2
+  2,
+  false
 )
 
 main.initStateTree(USER_1, user1.pubKey, 100)
@@ -36,19 +37,19 @@ main.initStateTree(USER_2, user2.pubKey, 80)
 
 const enc1 = genKeypair(privateKeys[2])
 const message1 = genMessage(enc1.privKey, coordinator.pubKey)(
-  USER_1, 2, 12, 8, user1.pubKey, user1.privKey, 1234567890n
+  USER_1, 2, 2, 4, user1.pubKey, user1.privKey, 1234567890n
 )
 main.pushMessage(message1, enc1.pubKey)
 
 const enc3 = genKeypair(privateKeys[5])
 const message3 = genMessage(enc3.privKey, coordinator.pubKey)(
-  USER_2, 1, 8, 5, user2.pubKey, user2.privKey, 1234567890n
+  USER_2, 1, 1, 9, user2.pubKey, user2.privKey, 1234567890n
 )
 main.pushMessage(message3, enc3.pubKey)
 
 const enc2 = genKeypair(privateKeys[3])
 const message2 = genMessage(enc2.privKey, coordinator.pubKey)(
-  USER_1, 1, 8, 6, user1.pubKey, user1.privKey, 9876543210n
+  USER_1, 1, 1, 6, user1.pubKey, user1.privKey, 9876543210n
 )
 main.pushMessage(message2, enc2.pubKey)
 

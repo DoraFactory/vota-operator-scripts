@@ -2,6 +2,7 @@ pragma circom 2.0.0;
 
 include "./verifySignature.circom";
 include "../node_modules/circomlib/circuits/comparators.circom";
+include "../node_modules/circomlib/circuits/mux1.circom";
 
 template MessageValidator() {
     // a) Whether the state leaf index is valid
@@ -49,6 +50,9 @@ template MessageValidator() {
     // validTimestamp.in[0] <== slTimestamp;
     // validTimestamp.in[1] <== pollEndTimestamp;
 
+    // e) Using quadratic deduction or linear deduction
+    signal input isQuadraticCost;
+
     // f) Whether there are sufficient voice credits
     signal input currentVoiceCreditBalance;
     signal input currentVotesForOption;
@@ -60,9 +64,14 @@ template MessageValidator() {
     validVoteWeight.in[0] <== voteWeight;
     validVoteWeight.in[1] <== 147946756881789319005730692170996259609;
 
-    // Check that currentVoiceCreditBalance + currentVotesForOption >= voteWeight
+    // Check that currentVoiceCreditBalance + costsForOption >= voteWeight
+    component costsForOption = Mux1();
+    costsForOption.s <== isQuadraticCost;
+    costsForOption.c[0] <== currentVotesForOption;
+    costsForOption.c[1] <== currentVotesForOption * currentVotesForOption;
+
     component sufficientVoiceCredits = GreaterEqThan(252);
-    sufficientVoiceCredits.in[0] <== currentVotesForOption + currentVoiceCreditBalance;
+    sufficientVoiceCredits.in[0] <== costsForOption.out + currentVoiceCreditBalance;
     sufficientVoiceCredits.in[1] <== voteWeight;
 
     component validUpdate = IsEqual();
