@@ -34,7 +34,8 @@
 		"processTally": "node ./dist/operator.mjs process-tally",
 		"stopTallying": "node ./dist/operator.mjs stop-tallying",
 		"tally": "cp secret.env .env && node ./dist/operator.mjs tally",
-		"setRoundInfo": "node ./dist/operator.mjs set-round-info"
+		"setRoundInfo": "node ./dist/operator.mjs set-round-info",
+		"withdraw": "node ./dist/operator.mjs withdraw"
 	},
 	"license": "ISC",
 	"dependencies": {
@@ -53,7 +54,7 @@
 		"ejs": "^3.1.8",
 		"elliptic": "^6.5.4",
 		"esbuild": "^0.17.15",
-		"ethers": "^5.7.2",
+		"ethers": "^5.5.2",
 		"execa": "^7.0.0",
 		"ffjavascript": "^0.2.55",
 		"find-up": "^6.3.0",

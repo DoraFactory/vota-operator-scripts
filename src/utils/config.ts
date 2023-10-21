@@ -1,8 +1,9 @@
 import * as fs from "fs";
 import { spawnSync } from "child_process";
+import chalk from "chalk";
 
 import { Secp256k1HdWallet } from "@cosmjs/launchpad";
-import { GasPrice } from "@cosmjs/stargate";
+import { GasPrice, SigningStargateClient } from "@cosmjs/stargate";
 import {
   SigningCosmWasmClient,
   SigningCosmWasmClientOptions,
@@ -90,21 +91,87 @@ export function formatNumber(number: number): string {
   return formattedNumber;
 }
 
+const exeNumber = (inputString: string) => {
+  const match = inputString.match(/0+\d+$/); // 匹配末尾的数字
+  if (match) {
+    return Number(match[0]);
+  }
+  return "";
+};
+
+export function formatResults(all_result: string, results: string[]) {
+  let all_vote = exeNumber(all_result);
+  // console.log(`All vote power: ${all_vote}`);
+  let all_votes = ``;
+  let index = 0;
+  for (let result of results) {
+    let vote = exeNumber(result);
+    let vote_data = ((Number(vote) / Number(all_vote)) * 100).toFixed(4);
+    let vote_string_return = `Option ${
+      index + 1
+    }, Vote Percentage: ${vote_data}%\n`;
+    all_votes += vote_string_return;
+    index += 1;
+  }
+  return all_votes;
+}
+
 export function execGenInput() {
-  console.log("genInput");
+  console.log(chalk.green("genInput (download zkey and MACI messages):"));
 
   const scriptPath = "./operator.sh";
 
   const result = spawnSync("bash", [scriptPath], {
-    stdio: "inherit", // 将子进程的stdin、stdout和stderr连接到当前进程
+    stdio: "inherit",
   });
 
   if (result.error) {
-    console.error(`执行脚本时出错: ${result.error.message}`);
+    console.error(`Tally script execution failed: ${result.error.message}`);
   } else if (result.status !== 0) {
-    console.error(`脚本执行失败，退出码: ${result.status}`);
+    console.error(
+      `Tally script execution failed, error code: ${result.status}`
+    );
   } else {
-    console.log("脚本成功执行");
-    // 在这里执行其他命令
+    console.log("Tally script successfully executed.\n");
+  }
+}
+
+export async function balanceOf(address: string) {
+  try {
+    let url = `https://vota-rest.dorafactory.org/cosmos/bank/v1beta1/balances/${address}/by_denom?denom=peaka`;
+    const result = await fetch(url, {
+      method: "get",
+      mode: "cors",
+      cache: "no-cache",
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((response) => response.json());
+
+    return result["balance"]["amount"];
+  } catch {
+    return undefined;
+  }
+}
+
+export async function withdrawBalance() {
+  const contractAddress = process.env.CONTRACT_ADDRESS;
+
+  if (contractAddress === undefined) {
+    console.log("Missing CONTRACT_ADDRESS in .env");
+    process.exit(0);
+  }
+  const roundBalance = await balanceOf(contractAddress);
+  console.log(`Round address: ${contractAddress}`);
+  console.log(`Round balance: ${roundBalance}peaka`);
+  if (roundBalance !== "0" && roundBalance !== undefined) {
+    const maci = await getContractSignerClient();
+
+    const res = await maci.withdraw({});
+
+    console.log(res);
+  } else {
+    console.log("Balance is 0, no need to do withdraw anymore.");
   }
 }
