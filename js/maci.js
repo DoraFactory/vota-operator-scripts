@@ -265,7 +265,9 @@ class MACI {
       if (!error) {
         // UPDATE STATE =======================================================
         s.pubKey = [...cmd.newPubKey]
-        s.balance = s.balance + currVotes - cmd.newVotes
+        s.balance = this.isQuadraticCost
+          ? s.balance + currVotes * currVotes - cmd.newVotes * cmd.newVotes
+          : s.balance + currVotes - cmd.newVotes
         s.voTree.updateLeaf(voIdx, cmd.newVotes)
         s.nonce = cmd.nonce
         s.voted = true
