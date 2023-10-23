@@ -33,7 +33,8 @@ const main = new MACI(
 	5, // tree config
 	coordinatorKey,
 	maxVoteOptions,
-	logs.states.length
+	logs.states.length,
+	BigInt(logs.circuitType)
 );
 
 for (const state of logs.states) {

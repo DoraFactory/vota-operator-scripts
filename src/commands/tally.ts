@@ -1,4 +1,4 @@
-import type { CommandModule } from "yargs";
+import { exit, type CommandModule } from "yargs";
 import chalk from "chalk";
 
 import { Uint256, ProofType } from "../../ts/Maci.types";
@@ -69,13 +69,16 @@ const commandModule: CommandModule = {
               console.log(process_message_res);
             } catch {
               console.log(
-                "Zero-knowledge proof verification failed. (processMessage)"
+                chalk.red(
+                  "Zero-knowledge proof verification failed. (processMessage)"
+                )
               );
+              process.exit(0);
             }
             console.log("");
           }
-          console.log(chalk.green("stopProcessing"));
 
+          console.log(chalk.green("stopProcessing"));
           const stop_processing_res = await maci.stopProcessingPeriod();
           console.log(stop_processing_res);
           console.log("");
@@ -104,8 +107,11 @@ const commandModule: CommandModule = {
               console.log(process_tally_res);
             } catch {
               console.log(
-                "Zero-knowledge proof verification failed. (processTally)"
+                chalk.red(
+                  "Zero-knowledge proof verification failed. (processTally)"
+                )
               );
+              process.exit(0);
             }
             console.log("");
           }
@@ -183,8 +189,11 @@ const commandModule: CommandModule = {
             console.log(process_message_res);
           } catch {
             console.log(
-              "Zero-knowledge proof verification failed. (processMessage)"
+              chalk.red(
+                "Zero-knowledge proof verification failed. (processMessage)"
+              )
             );
+            process.exit(0);
           }
           console.log("");
         }
@@ -217,8 +226,11 @@ const commandModule: CommandModule = {
             console.log(process_tally_res);
           } catch {
             console.log(
-              "Zero-knowledge proof verification failed. (processTally)"
+              chalk.red(
+                "Zero-knowledge proof verification failed. (processTally)"
+              )
             );
+            process.exit(0);
           }
           console.log("");
         }
@@ -291,8 +303,11 @@ const commandModule: CommandModule = {
             console.log(process_tally_res);
           } catch {
             console.log(
-              "Zero-knowledge proof verification failed. (processTally)"
+              chalk.red(
+                "Zero-knowledge proof verification failed. (processTally)"
+              )
             );
+            process.exit(0);
           }
           console.log("");
         }

@@ -8,16 +8,16 @@ compile_and_ts_and_witness() {
   echo -e "\033[32mOperator downloading zkey: \033[0m"
 
   if [ ! -d "zkeys" ]; then
-    curl -O https://vota-zkey.s3.ap-southeast-1.amazonaws.com/2115_zkeys.tar.gz
-    tar -zxf 2115_zkeys.tar.gz zkeys
-    rm -f 2115_zkeys.tar.gz
+    curl -O https://vota-zkey.s3.ap-southeast-1.amazonaws.com/2115_all_zkeys.tar.gz
+    tar -zxf 2115_all_zkeys.tar.gz zkeys
+    rm -f 2115_all_zkeys.tar.gz
   else
     read -p "Zkey folder already exists, do you want to override? (y/n): " choice
     if [ "$choice" == "y" ]; then
       rm -rf zkeys
-      curl -O https://vota-zkey.s3.ap-southeast-1.amazonaws.com/2115_zkeys.tar.gz
-      tar -zxf 2115_zkeys.tar.gz zkeys
-      rm -f 2115_zkeys.tar.gz
+      curl -O https://vota-zkey.s3.ap-southeast-1.amazonaws.com/2115_all_zkeys.tar.gz
+      tar -zxf 2115_all_zkeys.tar.gz zkeys
+      rm -f 2115_all_zkeys.tar.gz
     fi
   fi
   # get inputs by js
