@@ -142,7 +142,7 @@ export function execGenInput() {
 
 export async function balanceOf(address: string) {
   try {
-    let url = `https://vota-rest.dorafactory.org/cosmos/bank/v1beta1/balances/${address}/by_denom?denom=peaka`;
+    let url = `https://vota-testnet-rest.dorafactory.org/cosmos/bank/v1beta1/balances/${address}/by_denom?denom=peaka`;
     const result = await fetch(url, {
       method: "get",
       mode: "cors",
