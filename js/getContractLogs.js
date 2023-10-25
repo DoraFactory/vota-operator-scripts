@@ -55,6 +55,7 @@ const provider = 'https://vota-testnet-api.dorafactory.org/'
           baseGrant
           totalBond
           circuitType
+          circuitPower
       }
     }
   `;
@@ -153,7 +154,7 @@ const provider = 'https://vota-testnet-api.dorafactory.org/'
     fs.writeFileSync(
       path.join(__dirname, '../build/contract-logs.json'),
       JSON.stringify(
-        stringizing({ messages, states, circuitType: Number(round_data.circuitType) }),
+        stringizing({ messages, states, circuitType: round_data.circuitType, circuitPower: round_data.circuitPower }),
         undefined,
         2
       )
