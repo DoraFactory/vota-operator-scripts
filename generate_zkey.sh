@@ -1,45 +1,38 @@
 #!/bin/sh
-env_file=".env"
 
 compile_and_ts_and_witness() {
-  CONTRACT_ADDRESS=$1
-  COORDINATOR_KEY=$2
+  echo "compile & trustesetup for circuit"
 
-  rm -r build/
-
-  mkdir -p build/inputs
-
-  echo -e "\033[32mGet MACI messages from the smart contract: \033[0m"
-  node dist/operator.mjs query-max-vote-options
-  node js/getContractLogs.js $CONTRACT_ADDRESS
-  CIRCUIT_POWER=$(jq -r '.circuitPower' build/contract-logs.json)
-  echo -e "\033[32mOperator downloading zkey: \033[0m"
-
-  if [ ! -d "zkeys" ]; then
-    curl -O https://vota-zkey.s3.ap-southeast-1.amazonaws.com/qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz
-    tar -zxf qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz zkeys
-    rm -f qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz
-  else
-    read -p "Zkey folder already exists, do you want to override? (y/n): " choice
-    if [ "$choice" == "y" ]; then
-      rm -rf zkeys
-      curl -O https://vota-zkey.s3.ap-southeast-1.amazonaws.com/qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz
-      tar -zxf qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz zkeys
-      rm -f qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz
-    fi
-  fi
   # get inputs by js
-  echo -e "\033[32mGenerate input: \033[0m"
-  node js/genInputs.js $COORDINATOR_KEY
-  #compile circuits
-#   mkdir -p build/r1cs
+  echo "get contract logs and gen input"
+  mkdir -p build/inputs
+  node js/maci.test.js build/inputs
 
-#   echo $(date +"%T") "compile the circuit into r1cs, wasm and sym"
-#   itime="$(date -u +%s)"
-#   circom circuits/prod/msg.circom --r1cs --wasm --sym -o build/r1cs
-#   circom circuits/prod/tally.circom --r1cs --wasm --sym -o build/r1cs
-#   ftime="$(date -u +%s)"
-#   echo "	($(($(date -u +%s)-$itime))s)"
+  #compile circuits
+  mkdir -p zkeys/r1cs
+
+  echo $(date +"%T") "compile the circuit into r1cs, wasm and sym"
+  itime="$(date -u +%s)"
+  circom circuits/prod/msg.circom --r1cs --wasm --sym -o zkeys/r1cs
+  circom circuits/prod/tally.circom --r1cs --wasm --sym -o zkeys/r1cs
+  ftime="$(date -u +%s)"
+  echo "	($(($(date -u +%s)-$itime))s)"
+
+  # create zkey
+  echo $(date +"%T") "start create zkey"
+  mkdir -p zkeys/zkey
+  snarkjs g16s zkeys/r1cs/msg.r1cs ptau/powersOfTau28_hez_final_22.ptau zkeys/zkey/msg_0.zkey
+  snarkjs g16s zkeys/r1cs/tally.r1cs ptau/powersOfTau28_hez_final_22.ptau zkeys/zkey/tally_0.zkey
+
+  # output verification key
+  echo $(date +"%T") "output verification key"
+  mkdir -p zkeys/verification_key/msg
+  mkdir -p zkeys/verification_key/tally
+  snarkjs zkc zkeys/zkey/msg_0.zkey zkeys/zkey/msg_1.zkey --name="DoraHacks" -v
+  snarkjs zkev zkeys/zkey/msg_1.zkey zkeys/verification_key/msg/verification_key.json
+
+  snarkjs zkc zkeys/zkey/tally_0.zkey zkeys/zkey/tally_1.zkey --name="DoraHacks" -v
+  snarkjs zkev zkeys/zkey/tally_1.zkey zkeys/verification_key/tally/verification_key.json
 
   # generate witness
   echo $(date +"%T") "start generate witness"
@@ -48,11 +41,12 @@ compile_and_ts_and_witness() {
   folder_path="./build/inputs"
   mkdir -p build/public
 
+
   for file in "$folder_path"/msg-input_*.json; do
       if [ -f "$file" ]; then
         filename=$(basename "$file") 
         number=$(echo "$filename" | cut -d '_' -f 2 | cut -d '.' -f 1)
-        node "zkeys/r1cs/msg_js/generate_witness.js" "zkeys/r1cs/msg_js/msg.wasm" $file "./build/wtns/msg_$number.wtns"
+        node "zkeys/r1cs/msg_js/generate_witness.js" "zkeys/r1cs/msg_js/msg.wasm" $file "build/wtns/msg_$number.wtns"
 
         # generate public and proof
         echo $(date +"%T") "start generate proof"
@@ -75,7 +69,7 @@ compile_and_ts_and_witness() {
       if [ -f "$file" ]; then
         filename=$(basename "$file") 
         number=$(echo "$filename" | cut -d '_' -f 2 | cut -d '.' -f 1)
-        node "zkeys/r1cs/tally_js/generate_witness.js" "zkeys/r1cs/tally_js/tally.wasm" $file "./build/wtns/tally_$number.wtns"
+        node "zkeys/r1cs/tally_js/generate_witness.js" "zkeys/r1cs/tally_js/tally.wasm" $file "build/wtns/tally_$number.wtns"
 
         # generate public and proof
         echo $(date +"%T") "start generate proof"
@@ -93,23 +87,7 @@ compile_and_ts_and_witness() {
         node ./prove/src/adapt_maci.js tally $number
       fi
   done
- echo -e "\033[34mSuccessfully generated proof \033[0m"
+ echo "everything is ok"
 }
 
-if [ -f "$env_file" ]; then
-    source "$env_file"
-    if [ -z "$CONTRACT_ADDRESS" ]; then
-        echo "Error: CONTRACT_ADDRESS is empty."
-        exit 1
-    fi
-
-    if [ -z "$COORDINATOR_KEY" ]; then
-        echo "Error: COORDINATOR_KEY is empty."
-        exit 1
-    fi
-
-    compile_and_ts_and_witness "$CONTRACT_ADDRESS" "$COORDINATOR_KEY"
-
-else
-    echo ".env does not exist or is unreadable."
-fi
+compile_and_ts_and_witness

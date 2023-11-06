@@ -2,35 +2,31 @@
 env_file=".env"
 
 compile_and_ts_and_witness() {
-  CONTRACT_ADDRESS=$1
-  COORDINATOR_KEY=$2
-
+  echo "operator get proof"
+  COORDINATOR_KEY=$1
   rm -r build/
 
-  mkdir -p build/inputs
-
-  echo -e "\033[32mGet MACI messages from the smart contract: \033[0m"
-  node dist/operator.mjs query-max-vote-options
-  node js/getContractLogs.js $CONTRACT_ADDRESS
-  CIRCUIT_POWER=$(jq -r '.circuitPower' build/contract-logs.json)
-  echo -e "\033[32mOperator downloading zkey: \033[0m"
-
   if [ ! -d "zkeys" ]; then
-    curl -O https://vota-zkey.s3.ap-southeast-1.amazonaws.com/qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz
-    tar -zxf qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz zkeys
-    rm -f qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz
+    curl -O https://vota-zkey.s3.ap-southeast-1.amazonaws.com/2115_all_zkeys.tar.gz
+    tar -zxf 2115_all_zkeys.tar.gz zkeys
+    rm -f 2115_all_zkeys.tar.gz
   else
-    read -p "Zkey folder already exists, do you want to override? (y/n): " choice
+    read -p "The keys folder already exists, need re-download it? (y/n): " choice
     if [ "$choice" == "y" ]; then
       rm -rf zkeys
-      curl -O https://vota-zkey.s3.ap-southeast-1.amazonaws.com/qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz
-      tar -zxf qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz zkeys
-      rm -f qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz
+      curl -O https://vota-zkey.s3.ap-southeast-1.amazonaws.com/2115_all_zkeys.tar.gz
+      tar -zxf 2115_all_zkeys.tar.gz zkeys
+      rm -f 2115_all_zkeys.tar.gz
     fi
   fi
   # get inputs by js
-  echo -e "\033[32mGenerate input: \033[0m"
-  node js/genInputs.js $COORDINATOR_KEY
+  mkdir -p build/inputs
+
+  echo "get contract logs and gen input"
+  # node dist/operator.mjs query-max-vote-options
+  # node js/getContractLogs.js $CONTRACT_ADDRESS
+  # node js/genInputs.js $COORDINATOR_KEY
+  node js/maci.test.js build/inputs
   #compile circuits
 #   mkdir -p build/r1cs
 
@@ -93,23 +89,19 @@ compile_and_ts_and_witness() {
         node ./prove/src/adapt_maci.js tally $number
       fi
   done
- echo -e "\033[34mSuccessfully generated proof \033[0m"
+ echo "everything is ok"
 }
+
 
 if [ -f "$env_file" ]; then
     source "$env_file"
-    if [ -z "$CONTRACT_ADDRESS" ]; then
-        echo "Error: CONTRACT_ADDRESS is empty."
-        exit 1
-    fi
 
     if [ -z "$COORDINATOR_KEY" ]; then
-        echo "Error: COORDINATOR_KEY is empty."
+        echo "Error: COORDINATOR_KEY is empty。"
         exit 1
     fi
 
-    compile_and_ts_and_witness "$CONTRACT_ADDRESS" "$COORDINATOR_KEY"
-
+    compile_and_ts_and_witness "$COORDINATOR_KEY"
 else
-    echo ".env does not exist or is unreadable."
+    echo ".env isn't exist."
 fi

@@ -7,7 +7,9 @@ const { stringizing } = require('./keypair')
 
 // * DEV *
 // const contract = 'dora1uv4dz7ngaqwymvxggrjp3rnz3gs33szwjsnrxqg0ylkykqf8r7nskff7m8'
-const provider = 'https://vota-api.dorafactory.org/'
+// const provider = 'https://vota-api.dorafactory.org/'
+const provider = 'https://vota-testnet-api.dorafactory.org/'
+// const provider = 'http://localhost:8000'
 
   ; (async () => {
     const messages = []
@@ -27,6 +29,51 @@ const provider = 'https://vota-api.dorafactory.org/'
       const pubkey = event.pubKey.split(",").map(n => BigInt(n.slice(1, n.length - 1)))
       states.push({ idx, balance, pubkey })
     }
+
+
+    const ROUND_QUERY = `query {
+      round(id: "${contract}") {
+          id
+          blockHeight
+          txHash
+          operator
+          contractAddress
+          circuitName
+          timestamp
+          votingStart
+          votingEnd
+          status
+          period
+          actionType
+          roundId
+          roundTitle
+          roundDescription
+          roundLink
+          maciDenom
+          gasStationEnable
+          totalGrant
+          baseGrant
+          totalBond
+          circuitType
+          circuitPower
+      }
+    }
+  `;
+  
+    let round_data = await fetch(provider, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({ query: ROUND_QUERY }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        return data.data.round
+      });
+
+    console.log(round_data)
 
     const SIGN_UP_EVENTS_QUERY = `query {
     signUpEvents(orderBy: [STATE_IDX_ASC],
@@ -107,7 +154,7 @@ const provider = 'https://vota-api.dorafactory.org/'
     fs.writeFileSync(
       path.join(__dirname, '../build/contract-logs.json'),
       JSON.stringify(
-        stringizing({ messages, states }),
+        stringizing({ messages, states, circuitType: round_data.circuitType, circuitPower: round_data.circuitPower }),
         undefined,
         2
       )

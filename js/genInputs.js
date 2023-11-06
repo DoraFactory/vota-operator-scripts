@@ -23,17 +23,19 @@ const logs = JSON.parse(rawdata);
 
 const maxVoteOptionsdata = fs.readFileSync(maxVoteOptionsPath);
 const maxVoteOptionsJson = JSON.parse(maxVoteOptionsdata);
+let [stateTreeDepth, intStateTreeDepth, voteOptionTreeDepth, batchSize] = logs.circuitPower.split('-')
 
 // * DEV *
 const maxVoteOptions = Number(maxVoteOptionsJson.max_vote_options);
 const main = new MACI(
-	2,
-	1,
-	1,
-	5, // tree config
+	Number(stateTreeDepth),
+	Number(intStateTreeDepth),
+	Number(voteOptionTreeDepth),
+	Number(batchSize), // tree config
 	coordinatorKey,
 	maxVoteOptions,
-	logs.states.length
+	logs.states.length,
+	BigInt(logs.circuitType)
 );
 
 for (const state of logs.states) {

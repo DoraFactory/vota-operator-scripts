@@ -1,4 +1,4 @@
-import type { CommandModule } from "yargs";
+import { exit, type CommandModule } from "yargs";
 import chalk from "chalk";
 
 import { Uint256, ProofType } from "../../ts/Maci.types";
@@ -9,6 +9,7 @@ import {
   formatNumber,
   countMsgAndTally,
   formatResults,
+  withdrawBalance,
 } from "../utils";
 
 const commandModule: CommandModule = {
@@ -59,21 +60,25 @@ const commandModule: CommandModule = {
               c: msg_input.pi_c.substring(2),
             };
 
-            try {
-              const process_message_res = await maci.processMessage({
-                newStateCommitment,
-                proof,
-              });
-              console.log(process_message_res);
-            } catch {
-              console.log(
-                "Zero-knowledge proof verification failed. (processMessage)"
-              );
-            }
+            // try {
+            const process_message_res = await maci.processMessage({
+              newStateCommitment,
+              proof,
+            });
+            console.log(process_message_res);
+            // } catch (error: any) {
+            //   console.log(
+            //     chalk.red(
+            //       `Zero-knowledge proof verification failed. (processMessage msg_${tailNum})`
+            //     )
+            //   );
+            //   console.error(error.message);
+            //   process.exit(0);
+            // }
             console.log("");
           }
-          console.log(chalk.green("stopProcessing"));
 
+          console.log(chalk.green("stopProcessing"));
           const stop_processing_res = await maci.stopProcessingPeriod();
           console.log(stop_processing_res);
           console.log("");
@@ -94,17 +99,20 @@ const commandModule: CommandModule = {
               c: tally_proof.pi_c.substring(2),
             };
 
-            try {
-              const process_tally_res = await maci.processTally({
-                newTallyCommitment,
-                proof,
-              });
-              console.log(process_tally_res);
-            } catch {
-              console.log(
-                "Zero-knowledge proof verification failed. (processTally)"
-              );
-            }
+            // try {
+            const process_tally_res = await maci.processTally({
+              newTallyCommitment,
+              proof,
+            });
+            console.log(process_tally_res);
+            // } catch {
+            //   console.log(
+            //     chalk.red(
+            //       "Zero-knowledge proof verification failed. (processTally)"
+            //     )
+            //   );
+            //   process.exit(0);
+            // }
             console.log("");
           }
 
@@ -143,6 +151,8 @@ const commandModule: CommandModule = {
               "All zero-knowledge proofs are successfully verified on-chain."
             )
           );
+
+          await withdrawBalance();
         } else {
           console.log("Did not voting end");
         }
@@ -171,17 +181,21 @@ const commandModule: CommandModule = {
             c: msg_input.pi_c.substring(2),
           };
 
-          try {
-            const process_message_res = await maci.processMessage({
-              newStateCommitment,
-              proof,
-            });
-            console.log(process_message_res);
-          } catch {
-            console.log(
-              "Zero-knowledge proof verification failed. (processMessage)"
-            );
-          }
+          // try {
+          const process_message_res = await maci.processMessage({
+            newStateCommitment,
+            proof,
+          });
+          console.log(process_message_res);
+          // } catch (error: any) {
+          //   console.log(
+          //     chalk.red(
+          //       `Zero-knowledge proof verification failed. (processMessage msg_${tailNum})`
+          //     )
+          //   );
+          //   console.error(error.message);
+          //   process.exit(0);
+          // }
           console.log("");
         }
 
@@ -205,17 +219,21 @@ const commandModule: CommandModule = {
             c: tally_proof.pi_c.substring(2),
           };
 
-          try {
-            const process_tally_res = await maci.processTally({
-              newTallyCommitment,
-              proof,
-            });
-            console.log(process_tally_res);
-          } catch {
-            console.log(
-              "Zero-knowledge proof verification failed. (processTally)"
-            );
-          }
+          // try {
+          const process_tally_res = await maci.processTally({
+            newTallyCommitment,
+            proof,
+          });
+          console.log(process_tally_res);
+          // } catch (error: any) {
+          //   console.log(
+          //     chalk.red(
+          //       "Zero-knowledge proof verification failed. (processTally)"
+          //     )
+          //   );
+          //   console.error(error.message);
+          //   process.exit(0);
+          // }
           console.log("");
         }
 
@@ -253,6 +271,8 @@ const commandModule: CommandModule = {
             "All zero-knowledge proofs are successfully verified on-chain."
           )
         );
+
+        await withdrawBalance();
       } else if (period.status === "tallying") {
         const commitments = await readAndParseJsonFile(
           `${path}/build/inputs/commitments.json`
@@ -277,17 +297,21 @@ const commandModule: CommandModule = {
             c: tally_proof.pi_c.substring(2),
           };
 
-          try {
-            const process_tally_res = await maci.processTally({
-              newTallyCommitment,
-              proof,
-            });
-            console.log(process_tally_res);
-          } catch {
-            console.log(
-              "Zero-knowledge proof verification failed. (processTally)"
-            );
-          }
+          // try {
+          const process_tally_res = await maci.processTally({
+            newTallyCommitment,
+            proof,
+          });
+          console.log(process_tally_res);
+          // } catch (error: any) {
+          //   console.log(
+          //     chalk.red(
+          //       "Zero-knowledge proof verification failed. (processTally)"
+          //     )
+          //   );
+          //   console.error(error.message);
+          //   process.exit(0);
+          // }
           console.log("");
         }
 
@@ -325,6 +349,8 @@ const commandModule: CommandModule = {
             "All zero-knowledge proofs are successfully verified on-chain."
           )
         );
+
+        await withdrawBalance();
       } else if (period.status === "ended") {
         let max_vote_options = Number(await maci.maxVoteOptions());
         let all_result = await maci.getAllResult();
@@ -344,9 +370,12 @@ const commandModule: CommandModule = {
             "All zero-knowledge proofs are successfully verified on-chain."
           )
         );
+
+        await withdrawBalance();
       }
-    } catch {
+    } catch (error: any) {
       console.log(chalk.red("Tally failed."));
+      console.error(error.message);
     }
 
     process.exit(0);
