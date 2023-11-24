@@ -2,6 +2,7 @@
 
 compile_and_ts_and_witness() {
   echo "compile & trustesetup for circuit"
+  rm -r build/
 
   # get inputs by js
   echo "get contract logs and gen input"
@@ -30,19 +31,29 @@ compile_and_ts_and_witness() {
       if [ -f "$file" ]; then
         filename=$(basename "$file") 
         number=$(echo "$filename" | cut -d '_' -f 2 | cut -d '.' -f 1)
+
+        # generate public and proof
+        echo $(date +"%T") "start generate proof"
+        mkdir -p build/proof/msg_$number
+
         node "zkeys/r1cs/msg_js/generate_witness.js" "zkeys/r1cs/msg_js/msg.wasm" $file "build/wtns/msg_$number.wtns"
-        plonkit prove --srs_monomial_form msg.zkey --circuit zkeys/r1cs/msg.r1cs --witness "build/wtns/msg_$number.wtns"
+        plonkit prove --srs_monomial_form "./ptau/setup_2^23.key"  --circuit "zkeys/r1cs/msg.r1cs" --witness "build/wtns/msg_$number.wtns" --publicjson "build/public/msg-public_$number.json" --proofjson "build/proof/msg_$number/proof.json" --proof "build/proof/msg_$number/proof.bin"
       fi
   done
 
-  # for file in "$folder_path"/tally-input_*.json; do
-  #     if [ -f "$file" ]; then
-  #       filename=$(basename "$file") 
-  #       number=$(echo "$filename" | cut -d '_' -f 2 | cut -d '.' -f 1)
-  #       node "zkeys/r1cs/tally_js/generate_witness.js" "zkeys/r1cs/tally_js/tally.wasm" $file "build/wtns/tally_$number.wtns"
-  #       plonkit prove --srs_monomial_form ./ptau/setup_2\^10.key --circuit zkeys/r1cs/tally.r1cs --witness "build/wtns/tally_$number.wtns"
-  #     fi
-  # done
+  for file in "$folder_path"/tally-input_*.json; do
+      if [ -f "$file" ]; then
+        filename=$(basename "$file") 
+        number=$(echo "$filename" | cut -d '_' -f 2 | cut -d '.' -f 1)
+
+        # generate public and proof
+        echo $(date +"%T") "start generate proof"
+        mkdir -p build/proof/tally_$number
+
+        node "zkeys/r1cs/tally_js/generate_witness.js" "zkeys/r1cs/tally_js/tally.wasm" $file "build/wtns/tally_$number.wtns"
+        plonkit prove --srs_monomial_form "./ptau/setup_2^23.key" --circuit "zkeys/r1cs/tally.r1cs" --witness "build/wtns/tally_$number.wtns" --publicjson "build/public/tally-public_$number.json" --proofjson "build/proof/tally_$number/proof.json" --proof "build/proof/tally_$number/proof.bin"
+      fi
+  done
 
   # # create zkey
   # echo $(date +"%T") "start create zkey"

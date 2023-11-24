@@ -83,3 +83,13 @@ fs.writeFileSync(
   path.join(outputPath, 'logs.json'),
   JSON.stringify(main.logs, undefined, 2)
 )
+
+fs.writeFileSync(
+  path.join(outputPath, 'result.json'),
+
+	JSON.stringify(
+		stringizing(main.tallyResults.leaves().slice(0, 5)),
+		undefined,
+		2
+	)
+)
