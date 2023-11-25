@@ -108,6 +108,7 @@ export function formatResults(all_result: string, results: string[]) {
   // console.log(`All vote power: ${all_vote}`);
   let all_votes = ``;
   let index = 0;
+
   for (let result of results) {
     let vote = exeNumber(result);
     let vote_data = ((Number(vote) / Number(all_vote)) * 100).toFixed(4);

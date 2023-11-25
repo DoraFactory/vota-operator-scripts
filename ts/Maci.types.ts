@@ -8,14 +8,17 @@ export type Uint256 = string;
 export type Timestamp = Uint64;
 export type Uint64 = string;
 export interface InstantiateMsg {
+  certification_system: Uint256;
   circuit_type: Uint256;
   coordinator: PubKey;
+  groth16_process_vkey?: Groth16VKeyType | null;
+  groth16_tally_vkey?: Groth16VKeyType | null;
   max_vote_options: Uint256;
   parameters: MaciParameters;
-  process_vkey: VKeyType;
+  plonk_process_vkey?: PlonkVKeyType | null;
+  plonk_tally_vkey?: PlonkVKeyType | null;
   qtr_lib: QuinaryTreeRoot;
   round_info: RoundInfo;
-  tally_vkey: VKeyType;
   voting_time?: VotingTime | null;
   whitelist?: Whitelist | null;
 }
@@ -23,19 +26,28 @@ export interface PubKey {
   x: Uint256;
   y: Uint256;
 }
-export interface MaciParameters {
-  int_state_tree_depth: Uint256;
-  message_batch_size: Uint256;
-  state_tree_depth: Uint256;
-  vote_option_tree_depth: Uint256;
-}
-export interface VKeyType {
+export interface Groth16VKeyType {
   vk_alpha1: string;
   vk_beta_2: string;
   vk_delta_2: string;
   vk_gamma_2: string;
   vk_ic0: string;
   vk_ic1: string;
+}
+export interface MaciParameters {
+  int_state_tree_depth: Uint256;
+  message_batch_size: Uint256;
+  state_tree_depth: Uint256;
+  vote_option_tree_depth: Uint256;
+}
+export interface PlonkVKeyType {
+  g2_elements: string[];
+  n: number;
+  next_step_selector_commitments: string[];
+  non_residues: string[];
+  num_inputs: number;
+  permutation_commitments: string[];
+  selector_commitments: string[];
 }
 export interface QuinaryTreeRoot {
   zeros: [
@@ -112,8 +124,9 @@ export type ExecuteMsg =
     }
   | {
       process_message: {
+        groth16_proof?: Groth16ProofType | null;
         new_state_commitment: Uint256;
-        proof: ProofType;
+        plonk_proof?: PlonkProofType | null;
       };
     }
   | {
@@ -121,8 +134,9 @@ export type ExecuteMsg =
     }
   | {
       process_tally: {
+        groth16_proof?: Groth16ProofType | null;
         new_tally_commitment: Uint256;
-        proof: ProofType;
+        plonk_proof?: PlonkProofType | null;
       };
     }
   | {
@@ -151,10 +165,26 @@ export type Uint128 = string;
 export interface MessageData {
   data: [Uint256, Uint256, Uint256, Uint256, Uint256, Uint256, Uint256];
 }
-export interface ProofType {
+export interface Groth16ProofType {
   a: string;
   b: string;
   c: string;
+}
+export interface PlonkProofType {
+  grand_product_at_z_omega: string;
+  grand_product_commitment: string;
+  input_values: string[];
+  linearization_polynomial_at_z: string;
+  n: number;
+  num_inputs: number;
+  opening_at_z_omega_proof: string;
+  opening_at_z_proof: string;
+  permutation_polynomials_at_z: string[];
+  quotient_poly_commitments: string[];
+  quotient_polynomial_at_z: string;
+  wire_commitments: string[];
+  wire_values_at_z: string[];
+  wire_values_at_z_omega: string[];
 }
 export type QueryMsg =
   | {

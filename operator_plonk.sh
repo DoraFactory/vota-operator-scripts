@@ -15,19 +15,19 @@ compile_and_ts_and_witness() {
   CIRCUIT_POWER=$(jq -r '.circuitPower' build/contract-logs.json)
   echo -e "\033[32mOperator downloading zkey: \033[0m"
 
-  if [ ! -d "zkeys" ]; then
-    curl -O https://vota-zkey.s3.ap-southeast-1.amazonaws.com/qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz
-    tar -zxf qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz zkeys
-    rm -f qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz
-  else
-    read -p "Zkey folder already exists, do you want to override? (y/n): " choice
-    if [ "$choice" == "y" ]; then
-      rm -rf zkeys
-      curl -O https://vota-zkey.s3.ap-southeast-1.amazonaws.com/qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz
-      tar -zxf qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz zkeys
-      rm -f qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz
-    fi
-  fi
+  # if [ ! -d "zkeys" ]; then
+  #   curl -O https://vota-zkey.s3.ap-southeast-1.amazonaws.com/qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz
+  #   tar -zxf qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz zkeys
+  #   rm -f qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz
+  # else
+  #   read -p "Zkey folder already exists, do you want to override? (y/n): " choice
+  #   if [ "$choice" == "y" ]; then
+  #     rm -rf zkeys
+  #     curl -O https://vota-zkey.s3.ap-southeast-1.amazonaws.com/qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz
+  #     tar -zxf qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz zkeys
+  #     rm -f qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz
+  #   fi
+  # fi
   # get inputs by js
   echo -e "\033[32mGenerate input: \033[0m"
   node js/genInputs.js $COORDINATOR_KEY
@@ -52,22 +52,13 @@ compile_and_ts_and_witness() {
       if [ -f "$file" ]; then
         filename=$(basename "$file") 
         number=$(echo "$filename" | cut -d '_' -f 2 | cut -d '.' -f 1)
-        node "zkeys/r1cs/msg_js/generate_witness.js" "zkeys/r1cs/msg_js/msg.wasm" $file "./build/wtns/msg_$number.wtns"
 
         # generate public and proof
         echo $(date +"%T") "start generate proof"
         mkdir -p build/proof/msg_$number
-        node node_modules/snarkjs/cli.js g16p "zkeys/zkey/msg_1.zkey" "build/wtns/msg_$number.wtns" "build/proof/msg_$number/proof.json" build/public/msg-public_$number.json
 
-        # verify proof by snarkjs
-        echo $(date +"%T") "start verify the msg proof"
-        node node_modules/snarkjs/cli.js groth16 verify zkeys/verification_key/msg/verification_key.json build/public/msg-public_$number.json build/proof/msg_$number/proof.json
-
-        # start generate final proof
-        echo $(date +"%T") "start transform the proof data format"
-        mkdir -p build/final_proof/msg_$number
-        mkdir -p build/final_verification_key/msg_$number
-        node ./prove/src/adapt_maci.js msg $number
+        node "zkeys/r1cs/msg_js/generate_witness.js" "zkeys/r1cs/msg_js/msg.wasm" $file "build/wtns/msg_$number.wtns"
+        plonkit prove --srs_monomial_form "./ptau/setup_2^23.key"  --circuit "zkeys/r1cs/msg.r1cs" --witness "build/wtns/msg_$number.wtns" --publicjson "build/public/msg-public_$number.json" --proofjson "build/proof/msg_$number/proof.json" --proof "build/proof/msg_$number/proof.bin"
       fi
   done
 
@@ -75,24 +66,16 @@ compile_and_ts_and_witness() {
       if [ -f "$file" ]; then
         filename=$(basename "$file") 
         number=$(echo "$filename" | cut -d '_' -f 2 | cut -d '.' -f 1)
-        node "zkeys/r1cs/tally_js/generate_witness.js" "zkeys/r1cs/tally_js/tally.wasm" $file "./build/wtns/tally_$number.wtns"
 
         # generate public and proof
         echo $(date +"%T") "start generate proof"
         mkdir -p build/proof/tally_$number
-        node node_modules/snarkjs/cli.js g16p "zkeys/zkey/tally_1.zkey" "build/wtns/tally_$number.wtns" "build/proof/tally_$number/proof.json" build/public/tally-public_$number.json
 
-        # verify proof by snarkjs
-        echo $(date +"%T") "start verify the tally proof"
-        node node_modules/snarkjs/cli.js groth16 verify zkeys/verification_key/tally/verification_key.json build/public/tally-public_$number.json build/proof/tally_$number/proof.json
-
-        # start generate final proof
-        echo $(date +"%T") "start transform the proof data format"
-        mkdir -p build/final_proof/tally_$number
-        mkdir -p build/final_verification_key/tally_$number
-        node ./prove/src/adapt_maci.js tally $number
+        node "zkeys/r1cs/tally_js/generate_witness.js" "zkeys/r1cs/tally_js/tally.wasm" $file "build/wtns/tally_$number.wtns"
+        plonkit prove --srs_monomial_form "./ptau/setup_2^23.key" --circuit "zkeys/r1cs/tally.r1cs" --witness "build/wtns/tally_$number.wtns" --publicjson "build/public/tally-public_$number.json" --proofjson "build/proof/tally_$number/proof.json" --proof "build/proof/tally_$number/proof.bin"
       fi
   done
+
  echo -e "\033[34mSuccessfully generated proof \033[0m"
 }
 

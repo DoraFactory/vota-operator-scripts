@@ -1,7 +1,7 @@
 import { exit, type CommandModule } from "yargs";
 import chalk from "chalk";
 
-import { Uint256, ProofType } from "../../ts/Maci.types";
+import { Uint256, Groth16ProofType, PlonkProofType } from "../../ts/Maci.types";
 import {
   getContractSignerClient,
   readAndParseJsonFile,
@@ -41,41 +41,74 @@ const commandModule: CommandModule = {
           );
           const { msgCount, tallyCount } = countMsgAndTally(commitments);
 
+          const contractInfo = await readAndParseJsonFile(
+            `${path}/build/contract-logs.json`
+          );
+          const certificationSystem = contractInfo["certificationSystem"];
+
+          console.log(`Certification system: ${certificationSystem}`);
           console.log(
             "Submitting on-chain transactions to verify zero-knowledge proofs."
           );
           console.log(chalk.green("processMessage"));
 
-          for (let i = 0; i < msgCount; i += 1) {
-            const tailNum = formatNumber(i);
-            console.log(`msg_${tailNum}`);
-            console.log(commitments[`msg_${tailNum}`]);
-            const newStateCommitment = commitments[`msg_${tailNum}`];
-            const msg_input = await readAndParseJsonFile(
-              `${path}/build/final_proof/msg_${tailNum}/proof_hex.json`
-            );
-            const proof: ProofType = {
-              a: msg_input.pi_a.substring(2),
-              b: msg_input.pi_b.substring(2),
-              c: msg_input.pi_c.substring(2),
-            };
+          if (certificationSystem === "groth16") {
+            for (let i = 0; i < msgCount; i += 1) {
+              const tailNum = formatNumber(i);
+              console.log(`msg_${tailNum}`);
+              console.log(commitments[`msg_${tailNum}`]);
+              const newStateCommitment = commitments[`msg_${tailNum}`];
+              const msg_input = await readAndParseJsonFile(
+                `${path}/build/final_proof/msg_${tailNum}/proof_hex.json`
+              );
+              const groth16Proof: Groth16ProofType = {
+                a: msg_input.pi_a.substring(2),
+                b: msg_input.pi_b.substring(2),
+                c: msg_input.pi_c.substring(2),
+              };
 
-            // try {
-            const process_message_res = await maci.processMessage({
-              newStateCommitment,
-              proof,
-            });
-            console.log(process_message_res);
-            // } catch (error: any) {
-            //   console.log(
-            //     chalk.red(
-            //       `Zero-knowledge proof verification failed. (processMessage msg_${tailNum})`
-            //     )
-            //   );
-            //   console.error(error.message);
-            //   process.exit(0);
-            // }
-            console.log("");
+              const process_message_res = await maci.processMessage({
+                newStateCommitment,
+                groth16Proof,
+              });
+              console.log(process_message_res);
+              console.log("");
+            }
+          } else {
+            for (let i = 0; i < msgCount; i += 1) {
+              const tailNum = formatNumber(i);
+              console.log(`msg_${tailNum}`);
+              console.log(commitments[`msg_${tailNum}`]);
+              const newStateCommitment = commitments[`msg_${tailNum}`];
+              const msg_input = await readAndParseJsonFile(
+                `${path}/build/proof/msg_${tailNum}/proof.json`
+              );
+              const plonkProof: PlonkProofType = {
+                grand_product_at_z_omega: msg_input.grand_product_at_z_omega,
+                grand_product_commitment: msg_input.grand_product_commitment,
+                input_values: msg_input.input_values,
+                linearization_polynomial_at_z:
+                  msg_input.linearization_polynomial_at_z,
+                n: msg_input.n,
+                num_inputs: msg_input.num_inputs,
+                opening_at_z_omega_proof: msg_input.opening_at_z_omega_proof,
+                opening_at_z_proof: msg_input.opening_at_z_proof,
+                permutation_polynomials_at_z:
+                  msg_input.permutation_polynomials_at_z,
+                quotient_poly_commitments: msg_input.quotient_poly_commitments,
+                quotient_polynomial_at_z: msg_input.quotient_polynomial_at_z,
+                wire_commitments: msg_input.wire_commitments,
+                wire_values_at_z: msg_input.wire_values_at_z,
+                wire_values_at_z_omega: msg_input.wire_values_at_z_omega,
+              };
+
+              const process_message_res = await maci.processMessage({
+                newStateCommitment,
+                plonkProof,
+              });
+              console.log(process_message_res);
+              console.log("");
+            }
           }
 
           console.log(chalk.green("stopProcessing"));
@@ -84,36 +117,74 @@ const commandModule: CommandModule = {
           console.log("");
 
           console.log(chalk.green("processTallying"));
+          if (certificationSystem === "groth16") {
+            for (let i = 0; i < tallyCount; i += 1) {
+              const tailNum = formatNumber(i);
+              console.log(`tally_${tailNum}`);
+              const newTallyCommitment = commitments[`tally_${tailNum}`];
+              console.log(newTallyCommitment);
+              const tally_proof = await readAndParseJsonFile(
+                `${path}/build/final_proof/tally_${tailNum}/proof_hex.json`
+              );
+              const groth16Proof: Groth16ProofType = {
+                a: tally_proof.pi_a.substring(2),
+                b: tally_proof.pi_b.substring(2),
+                c: tally_proof.pi_c.substring(2),
+              };
 
-          for (let i = 0; i < tallyCount; i += 1) {
-            const tailNum = formatNumber(i);
-            console.log(`tally_${tailNum}`);
-            const newTallyCommitment = commitments[`tally_${tailNum}`];
-            console.log(newTallyCommitment);
-            const tally_proof = await readAndParseJsonFile(
-              `${path}/build/final_proof/tally_${tailNum}/proof_hex.json`
-            );
-            const proof: ProofType = {
-              a: tally_proof.pi_a.substring(2),
-              b: tally_proof.pi_b.substring(2),
-              c: tally_proof.pi_c.substring(2),
-            };
+              // try {
+              const process_tally_res = await maci.processTally({
+                newTallyCommitment,
+                groth16Proof,
+              });
+              console.log(process_tally_res);
+              // } catch (error: any) {
+              //   console.log(
+              //     chalk.red(
+              //       "Zero-knowledge proof verification failed. (processTally)"
+              //     )
+              //   );
+              //   console.error(error.message);
+              //   process.exit(0);
+              // }
+              console.log("");
+            }
+          } else {
+            for (let i = 0; i < tallyCount; i += 1) {
+              const tailNum = formatNumber(i);
+              console.log(`tally_${tailNum}`);
+              const newTallyCommitment = commitments[`tally_${tailNum}`];
+              console.log(newTallyCommitment);
+              const tally_proof = await readAndParseJsonFile(
+                `${path}/build/proof/tally_${tailNum}/proof.json`
+              );
+              const plonkProof: PlonkProofType = {
+                grand_product_at_z_omega: tally_proof.grand_product_at_z_omega,
+                grand_product_commitment: tally_proof.grand_product_commitment,
+                input_values: tally_proof.input_values,
+                linearization_polynomial_at_z:
+                  tally_proof.linearization_polynomial_at_z,
+                n: tally_proof.n,
+                num_inputs: tally_proof.num_inputs,
+                opening_at_z_omega_proof: tally_proof.opening_at_z_omega_proof,
+                opening_at_z_proof: tally_proof.opening_at_z_proof,
+                permutation_polynomials_at_z:
+                  tally_proof.permutation_polynomials_at_z,
+                quotient_poly_commitments:
+                  tally_proof.quotient_poly_commitments,
+                quotient_polynomial_at_z: tally_proof.quotient_polynomial_at_z,
+                wire_commitments: tally_proof.wire_commitments,
+                wire_values_at_z: tally_proof.wire_values_at_z,
+                wire_values_at_z_omega: tally_proof.wire_values_at_z_omega,
+              };
 
-            // try {
-            const process_tally_res = await maci.processTally({
-              newTallyCommitment,
-              proof,
-            });
-            console.log(process_tally_res);
-            // } catch {
-            //   console.log(
-            //     chalk.red(
-            //       "Zero-knowledge proof verification failed. (processTally)"
-            //     )
-            //   );
-            //   process.exit(0);
-            // }
-            console.log("");
+              const process_tally_res = await maci.processTally({
+                newTallyCommitment,
+                plonkProof,
+              });
+              console.log(process_tally_res);
+              console.log("");
+            }
           }
 
           console.log(chalk.green("stopTallying"));
@@ -157,46 +228,80 @@ const commandModule: CommandModule = {
           console.log("Did not voting end");
         }
       } else if (period.status === "processing") {
-        execGenInput();
+        // execGenInput();
         const commitments = await readAndParseJsonFile(
           `${path}/build/inputs/commitments.json`
         );
         const { msgCount, tallyCount } = countMsgAndTally(commitments);
 
+        const contractInfo = await readAndParseJsonFile(
+          `${path}/build/contract-logs.json`
+        );
+        const certificationSystem = contractInfo["certificationSystem"];
+
+        console.log(`Certification system: ${certificationSystem}`);
         console.log(
           "Submitting on-chain transactions to verify zero-knowledge proofs."
         );
         console.log(chalk.green("processMessage"));
-        for (let i = 0; i < msgCount; i += 1) {
-          const tailNum = formatNumber(i);
-          console.log(`msg_${tailNum}`);
-          console.log(commitments[`msg_${tailNum}`]);
-          const newStateCommitment = commitments[`msg_${tailNum}`];
-          const msg_input = await readAndParseJsonFile(
-            `${path}/build/final_proof/msg_${tailNum}/proof_hex.json`
-          );
-          const proof: ProofType = {
-            a: msg_input.pi_a.substring(2),
-            b: msg_input.pi_b.substring(2),
-            c: msg_input.pi_c.substring(2),
-          };
 
-          // try {
-          const process_message_res = await maci.processMessage({
-            newStateCommitment,
-            proof,
-          });
-          console.log(process_message_res);
-          // } catch (error: any) {
-          //   console.log(
-          //     chalk.red(
-          //       `Zero-knowledge proof verification failed. (processMessage msg_${tailNum})`
-          //     )
-          //   );
-          //   console.error(error.message);
-          //   process.exit(0);
-          // }
-          console.log("");
+        if (certificationSystem === "groth16") {
+          for (let i = 0; i < msgCount; i += 1) {
+            const tailNum = formatNumber(i);
+            console.log(`msg_${tailNum}`);
+            console.log(commitments[`msg_${tailNum}`]);
+            const newStateCommitment = commitments[`msg_${tailNum}`];
+            const msg_input = await readAndParseJsonFile(
+              `${path}/build/final_proof/msg_${tailNum}/proof_hex.json`
+            );
+            const groth16Proof: Groth16ProofType = {
+              a: msg_input.pi_a.substring(2),
+              b: msg_input.pi_b.substring(2),
+              c: msg_input.pi_c.substring(2),
+            };
+
+            const process_message_res = await maci.processMessage({
+              newStateCommitment,
+              groth16Proof,
+            });
+            console.log(process_message_res);
+            console.log("");
+          }
+        } else {
+          for (let i = 0; i < msgCount; i += 1) {
+            const tailNum = formatNumber(i);
+            console.log(`msg_${tailNum}`);
+            console.log(commitments[`msg_${tailNum}`]);
+            const newStateCommitment = commitments[`msg_${tailNum}`];
+            const msg_input = await readAndParseJsonFile(
+              `${path}/build/proof/msg_${tailNum}/proof.json`
+            );
+            const plonkProof: PlonkProofType = {
+              grand_product_at_z_omega: msg_input.grand_product_at_z_omega,
+              grand_product_commitment: msg_input.grand_product_commitment,
+              input_values: msg_input.input_values,
+              linearization_polynomial_at_z:
+                msg_input.linearization_polynomial_at_z,
+              n: msg_input.n,
+              num_inputs: msg_input.num_inputs,
+              opening_at_z_omega_proof: msg_input.opening_at_z_omega_proof,
+              opening_at_z_proof: msg_input.opening_at_z_proof,
+              permutation_polynomials_at_z:
+                msg_input.permutation_polynomials_at_z,
+              quotient_poly_commitments: msg_input.quotient_poly_commitments,
+              quotient_polynomial_at_z: msg_input.quotient_polynomial_at_z,
+              wire_commitments: msg_input.wire_commitments,
+              wire_values_at_z: msg_input.wire_values_at_z,
+              wire_values_at_z_omega: msg_input.wire_values_at_z_omega,
+            };
+
+            const process_message_res = await maci.processMessage({
+              newStateCommitment,
+              plonkProof,
+            });
+            console.log(process_message_res);
+            console.log("");
+          }
         }
 
         console.log(chalk.green("stopProcessing"));
@@ -205,38 +310,74 @@ const commandModule: CommandModule = {
         console.log("");
 
         console.log(chalk.green("processTallying"));
-        for (let i = 0; i < tallyCount; i += 1) {
-          const tailNum = formatNumber(i);
-          console.log(`tally_${tailNum}`);
-          const newTallyCommitment = commitments[`tally_${tailNum}`];
-          console.log(newTallyCommitment);
-          const tally_proof = await readAndParseJsonFile(
-            `${path}/build/final_proof/tally_${tailNum}/proof_hex.json`
-          );
-          const proof: ProofType = {
-            a: tally_proof.pi_a.substring(2),
-            b: tally_proof.pi_b.substring(2),
-            c: tally_proof.pi_c.substring(2),
-          };
+        if (certificationSystem === "groth16") {
+          for (let i = 0; i < tallyCount; i += 1) {
+            const tailNum = formatNumber(i);
+            console.log(`tally_${tailNum}`);
+            const newTallyCommitment = commitments[`tally_${tailNum}`];
+            console.log(newTallyCommitment);
+            const tally_proof = await readAndParseJsonFile(
+              `${path}/build/final_proof/tally_${tailNum}/proof_hex.json`
+            );
+            const groth16Proof: Groth16ProofType = {
+              a: tally_proof.pi_a.substring(2),
+              b: tally_proof.pi_b.substring(2),
+              c: tally_proof.pi_c.substring(2),
+            };
 
-          // try {
-          const process_tally_res = await maci.processTally({
-            newTallyCommitment,
-            proof,
-          });
-          console.log(process_tally_res);
-          // } catch (error: any) {
-          //   console.log(
-          //     chalk.red(
-          //       "Zero-knowledge proof verification failed. (processTally)"
-          //     )
-          //   );
-          //   console.error(error.message);
-          //   process.exit(0);
-          // }
-          console.log("");
+            // try {
+            const process_tally_res = await maci.processTally({
+              newTallyCommitment,
+              groth16Proof,
+            });
+            console.log(process_tally_res);
+            // } catch (error: any) {
+            //   console.log(
+            //     chalk.red(
+            //       "Zero-knowledge proof verification failed. (processTally)"
+            //     )
+            //   );
+            //   console.error(error.message);
+            //   process.exit(0);
+            // }
+            console.log("");
+          }
+        } else {
+          for (let i = 0; i < tallyCount; i += 1) {
+            const tailNum = formatNumber(i);
+            console.log(`tally_${tailNum}`);
+            const newTallyCommitment = commitments[`tally_${tailNum}`];
+            console.log(newTallyCommitment);
+            const tally_proof = await readAndParseJsonFile(
+              `${path}/build/proof/tally_${tailNum}/proof.json`
+            );
+            const plonkProof: PlonkProofType = {
+              grand_product_at_z_omega: tally_proof.grand_product_at_z_omega,
+              grand_product_commitment: tally_proof.grand_product_commitment,
+              input_values: tally_proof.input_values,
+              linearization_polynomial_at_z:
+                tally_proof.linearization_polynomial_at_z,
+              n: tally_proof.n,
+              num_inputs: tally_proof.num_inputs,
+              opening_at_z_omega_proof: tally_proof.opening_at_z_omega_proof,
+              opening_at_z_proof: tally_proof.opening_at_z_proof,
+              permutation_polynomials_at_z:
+                tally_proof.permutation_polynomials_at_z,
+              quotient_poly_commitments: tally_proof.quotient_poly_commitments,
+              quotient_polynomial_at_z: tally_proof.quotient_polynomial_at_z,
+              wire_commitments: tally_proof.wire_commitments,
+              wire_values_at_z: tally_proof.wire_values_at_z,
+              wire_values_at_z_omega: tally_proof.wire_values_at_z_omega,
+            };
+
+            const process_tally_res = await maci.processTally({
+              newTallyCommitment,
+              plonkProof,
+            });
+            console.log(process_tally_res);
+            console.log("");
+          }
         }
-
         console.log(chalk.green("stopTallying"));
         const results: Uint256[] = await readAndParseJsonFile(
           `${path}/build/inputs/result.json`
@@ -279,40 +420,84 @@ const commandModule: CommandModule = {
         );
         const { msgCount, tallyCount } = countMsgAndTally(commitments);
 
+        const contractInfo = await readAndParseJsonFile(
+          `${path}/build/contract-logs.json`
+        );
+        const certificationSystem = contractInfo["certificationSystem"];
+
+        console.log(`Certification system: ${certificationSystem}`);
         console.log(
           "Submitting on-chain transactions to verify zero-knowledge proofs."
         );
 
         console.log(chalk.green("processTallying"));
-        for (let i = 0; i < tallyCount; i += 1) {
-          const tailNum = formatNumber(i);
-          console.log(`tally_${tailNum}`);
-          const newTallyCommitment = commitments[`tally_${tailNum}`];
-          const tally_proof = await readAndParseJsonFile(
-            `${path}/build/final_proof/tally_${tailNum}/proof_hex.json`
-          );
-          const proof: ProofType = {
-            a: tally_proof.pi_a.substring(2),
-            b: tally_proof.pi_b.substring(2),
-            c: tally_proof.pi_c.substring(2),
-          };
+        if (certificationSystem === "groth16") {
+          for (let i = 0; i < tallyCount; i += 1) {
+            const tailNum = formatNumber(i);
+            console.log(`tally_${tailNum}`);
+            const newTallyCommitment = commitments[`tally_${tailNum}`];
+            console.log(newTallyCommitment);
+            const tally_proof = await readAndParseJsonFile(
+              `${path}/build/final_proof/tally_${tailNum}/proof_hex.json`
+            );
+            const groth16Proof: Groth16ProofType = {
+              a: tally_proof.pi_a.substring(2),
+              b: tally_proof.pi_b.substring(2),
+              c: tally_proof.pi_c.substring(2),
+            };
 
-          // try {
-          const process_tally_res = await maci.processTally({
-            newTallyCommitment,
-            proof,
-          });
-          console.log(process_tally_res);
-          // } catch (error: any) {
-          //   console.log(
-          //     chalk.red(
-          //       "Zero-knowledge proof verification failed. (processTally)"
-          //     )
-          //   );
-          //   console.error(error.message);
-          //   process.exit(0);
-          // }
-          console.log("");
+            // try {
+            const process_tally_res = await maci.processTally({
+              newTallyCommitment,
+              groth16Proof,
+            });
+            console.log(process_tally_res);
+            // } catch (error: any) {
+            //   console.log(
+            //     chalk.red(
+            //       "Zero-knowledge proof verification failed. (processTally)"
+            //     )
+            //   );
+            //   console.error(error.message);
+            //   process.exit(0);
+            // }
+            console.log("");
+          }
+        } else {
+          for (let i = 0; i < tallyCount; i += 1) {
+            const tailNum = formatNumber(i);
+            console.log(`tally_${tailNum}`);
+            const newTallyCommitment = commitments[`tally_${tailNum}`];
+            console.log(newTallyCommitment);
+            const tally_proof = await readAndParseJsonFile(
+              `${path}/build/proof/tally_${tailNum}/proof.json`
+            );
+            const plonkProof: PlonkProofType = {
+              grand_product_at_z_omega: tally_proof.grand_product_at_z_omega,
+              grand_product_commitment: tally_proof.grand_product_commitment,
+              input_values: tally_proof.input_values,
+              linearization_polynomial_at_z:
+                tally_proof.linearization_polynomial_at_z,
+              n: tally_proof.n,
+              num_inputs: tally_proof.num_inputs,
+              opening_at_z_omega_proof: tally_proof.opening_at_z_omega_proof,
+              opening_at_z_proof: tally_proof.opening_at_z_proof,
+              permutation_polynomials_at_z:
+                tally_proof.permutation_polynomials_at_z,
+              quotient_poly_commitments: tally_proof.quotient_poly_commitments,
+              quotient_polynomial_at_z: tally_proof.quotient_polynomial_at_z,
+              wire_commitments: tally_proof.wire_commitments,
+              wire_values_at_z: tally_proof.wire_values_at_z,
+              wire_values_at_z_omega: tally_proof.wire_values_at_z_omega,
+            };
+
+            const process_tally_res = await maci.processTally({
+              newTallyCommitment,
+              plonkProof,
+            });
+            console.log(process_tally_res);
+            console.log("");
+          }
         }
 
         console.log(chalk.green("stopTallying"));

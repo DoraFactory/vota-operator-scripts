@@ -8,8 +8,8 @@ const { stringizing } = require('./keypair')
 // * DEV *
 // const contract = 'dora1uv4dz7ngaqwymvxggrjp3rnz3gs33szwjsnrxqg0ylkykqf8r7nskff7m8'
 // const provider = 'https://vota-api.dorafactory.org/'
-const provider = 'https://vota-testnet-api.dorafactory.org/'
-// const provider = 'http://localhost:8000'
+// const provider = 'https://vota-testnet-api.dorafactory.org/'
+const provider = 'http://localhost:8000'
 
   ; (async () => {
     const messages = []
@@ -56,6 +56,7 @@ const provider = 'https://vota-testnet-api.dorafactory.org/'
           totalBond
           circuitType
           circuitPower
+          certificationSystem
       }
     }
   `;
@@ -154,7 +155,7 @@ const provider = 'https://vota-testnet-api.dorafactory.org/'
     fs.writeFileSync(
       path.join(__dirname, '../build/contract-logs.json'),
       JSON.stringify(
-        stringizing({ messages, states, circuitType: round_data.circuitType, circuitPower: round_data.circuitPower }),
+        stringizing({ messages, states, circuitType: round_data.circuitType, circuitPower: round_data.circuitPower, certificationSystem: round_data.certificationSystem }),
         undefined,
         2
       )

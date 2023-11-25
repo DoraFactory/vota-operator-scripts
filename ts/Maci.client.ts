@@ -16,8 +16,9 @@ import {
   Uint64,
   InstantiateMsg,
   PubKey,
+  Groth16VKeyType,
   MaciParameters,
-  VKeyType,
+  PlonkVKeyType,
   QuinaryTreeRoot,
   RoundInfo,
   VotingTime,
@@ -26,7 +27,8 @@ import {
   ExecuteMsg,
   Uint128,
   MessageData,
-  ProofType,
+  Groth16ProofType,
+  PlonkProofType,
   QueryMsg,
   Addr,
   PeriodStatus,
@@ -261,11 +263,13 @@ export interface MaciInterface extends MaciReadOnlyInterface {
   ) => Promise<ExecuteResult>;
   processMessage: (
     {
+      groth16Proof,
       newStateCommitment,
-      proof,
+      plonkProof,
     }: {
+      groth16Proof?: Groth16ProofType;
       newStateCommitment: Uint256;
-      proof: ProofType;
+      plonkProof?: PlonkProofType;
     },
     fee?: number | StdFee | "auto",
     memo?: string,
@@ -278,11 +282,13 @@ export interface MaciInterface extends MaciReadOnlyInterface {
   ) => Promise<ExecuteResult>;
   processTally: (
     {
+      groth16Proof,
       newTallyCommitment,
-      proof,
+      plonkProof,
     }: {
+      groth16Proof?: Groth16ProofType;
       newTallyCommitment: Uint256;
-      proof: ProofType;
+      plonkProof?: PlonkProofType;
     },
     fee?: number | StdFee | "auto",
     memo?: string,
@@ -564,11 +570,13 @@ export class MaciClient extends MaciQueryClient implements MaciInterface {
   };
   processMessage = async (
     {
+      groth16Proof,
       newStateCommitment,
-      proof,
+      plonkProof,
     }: {
+      groth16Proof?: Groth16ProofType;
       newStateCommitment: Uint256;
-      proof: ProofType;
+      plonkProof?: PlonkProofType;
     },
     fee: number | StdFee | "auto" = "auto",
     memo?: string,
@@ -579,8 +587,9 @@ export class MaciClient extends MaciQueryClient implements MaciInterface {
       this.contractAddress,
       {
         process_message: {
+          groth16_proof: groth16Proof,
           new_state_commitment: newStateCommitment,
-          proof,
+          plonk_proof: plonkProof,
         },
       },
       fee,
@@ -606,11 +615,13 @@ export class MaciClient extends MaciQueryClient implements MaciInterface {
   };
   processTally = async (
     {
+      groth16Proof,
       newTallyCommitment,
-      proof,
+      plonkProof,
     }: {
+      groth16Proof?: Groth16ProofType;
       newTallyCommitment: Uint256;
-      proof: ProofType;
+      plonkProof?: PlonkProofType;
     },
     fee: number | StdFee | "auto" = "auto",
     memo?: string,
@@ -621,8 +632,9 @@ export class MaciClient extends MaciQueryClient implements MaciInterface {
       this.contractAddress,
       {
         process_tally: {
+          groth16_proof: groth16Proof,
           new_tally_commitment: newTallyCommitment,
-          proof,
+          plonk_proof: plonkProof,
         },
       },
       fee,
