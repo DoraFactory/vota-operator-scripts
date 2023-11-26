@@ -35,11 +35,6 @@ const commandModule: CommandModule = {
           console.log(chalk.green("startProcessing"));
           const start_process_res = await maci.startProcessPeriod();
           console.log(start_process_res);
-          execGenInput();
-          const commitments = await readAndParseJsonFile(
-            `${path}/build/inputs/commitments.json`
-          );
-          const { msgCount, tallyCount } = countMsgAndTally(commitments);
 
           const contractInfo = await readAndParseJsonFile(
             `${path}/build/contract-logs.json`
@@ -47,6 +42,12 @@ const commandModule: CommandModule = {
           const certificationSystem = contractInfo["certificationSystem"];
 
           console.log(`Certification system: ${certificationSystem}`);
+          execGenInput(certificationSystem);
+          const commitments = await readAndParseJsonFile(
+            `${path}/build/inputs/commitments.json`
+          );
+          const { msgCount, tallyCount } = countMsgAndTally(commitments);
+
           console.log(
             "Submitting on-chain transactions to verify zero-knowledge proofs."
           );
@@ -228,18 +229,18 @@ const commandModule: CommandModule = {
           console.log("Did not voting end");
         }
       } else if (period.status === "processing") {
-        // execGenInput();
-        const commitments = await readAndParseJsonFile(
-          `${path}/build/inputs/commitments.json`
-        );
-        const { msgCount, tallyCount } = countMsgAndTally(commitments);
-
         const contractInfo = await readAndParseJsonFile(
           `${path}/build/contract-logs.json`
         );
         const certificationSystem = contractInfo["certificationSystem"];
 
         console.log(`Certification system: ${certificationSystem}`);
+        execGenInput(certificationSystem);
+        const commitments = await readAndParseJsonFile(
+          `${path}/build/inputs/commitments.json`
+        );
+        const { msgCount, tallyCount } = countMsgAndTally(commitments);
+
         console.log(
           "Submitting on-chain transactions to verify zero-knowledge proofs."
         );

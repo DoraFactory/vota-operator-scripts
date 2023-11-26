@@ -15,19 +15,19 @@ compile_and_ts_and_witness() {
   CIRCUIT_POWER=$(jq -r '.circuitPower' build/contract-logs.json)
   echo -e "\033[32mOperator downloading zkey: \033[0m"
 
-  # if [ ! -d "zkeys" ]; then
-  #   curl -O https://vota-zkey.s3.ap-southeast-1.amazonaws.com/qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz
-  #   tar -zxf qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz zkeys
-  #   rm -f qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz
-  # else
-  #   read -p "Zkey folder already exists, do you want to override? (y/n): " choice
-  #   if [ "$choice" == "y" ]; then
-  #     rm -rf zkeys
-  #     curl -O https://vota-zkey.s3.ap-southeast-1.amazonaws.com/qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz
-  #     tar -zxf qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz zkeys
-  #     rm -f qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz
-  #   fi
-  # fi
+  if [ ! -d "zkeys" ]; then
+    curl -O https://vota-zkey.s3.ap-southeast-1.amazonaws.com/plonk_qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz
+    tar -zxf plonk_qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz zkeys
+    rm -f plonk_qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz
+  else
+    read -p "Zkey folder already exists, do you want to override? (y/n): " choice
+    if [ "$choice" == "y" ]; then
+      rm -rf zkeys
+      curl -O https://vota-zkey.s3.ap-southeast-1.amazonaws.com/plonk_qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz
+      tar -zxf plonk_qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz zkeys
+      rm -f plonk_qv1p1v_"$CIRCUIT_POWER"_zkeys.tar.gz
+    fi
+  fi
   # get inputs by js
   echo -e "\033[32mGenerate input: \033[0m"
   node js/genInputs.js $COORDINATOR_KEY
@@ -58,7 +58,7 @@ compile_and_ts_and_witness() {
         mkdir -p build/proof/msg_$number
 
         node "zkeys/r1cs/msg_js/generate_witness.js" "zkeys/r1cs/msg_js/msg.wasm" $file "build/wtns/msg_$number.wtns"
-        plonkit prove --srs_monomial_form "./ptau/setup_2^23.key"  --circuit "zkeys/r1cs/msg.r1cs" --witness "build/wtns/msg_$number.wtns" --publicjson "build/public/msg-public_$number.json" --proofjson "build/proof/msg_$number/proof.json" --proof "build/proof/msg_$number/proof.bin"
+        plonkit prove --srs_monomial_form "./zkeys/zkey/plonk.key"  --circuit "zkeys/r1cs/msg.r1cs" --witness "build/wtns/msg_$number.wtns" --publicjson "build/public/msg-public_$number.json" --proofjson "build/proof/msg_$number/proof.json" --proof "build/proof/msg_$number/proof.bin"
       fi
   done
 
@@ -72,7 +72,7 @@ compile_and_ts_and_witness() {
         mkdir -p build/proof/tally_$number
 
         node "zkeys/r1cs/tally_js/generate_witness.js" "zkeys/r1cs/tally_js/tally.wasm" $file "build/wtns/tally_$number.wtns"
-        plonkit prove --srs_monomial_form "./ptau/setup_2^23.key" --circuit "zkeys/r1cs/tally.r1cs" --witness "build/wtns/tally_$number.wtns" --publicjson "build/public/tally-public_$number.json" --proofjson "build/proof/tally_$number/proof.json" --proof "build/proof/tally_$number/proof.bin"
+        plonkit prove --srs_monomial_form "./zkeys/zkey/plonk.key" --circuit "zkeys/r1cs/tally.r1cs" --witness "build/wtns/tally_$number.wtns" --publicjson "build/public/tally-public_$number.json" --proofjson "build/proof/tally_$number/proof.json" --proof "build/proof/tally_$number/proof.bin"
       fi
   done
 

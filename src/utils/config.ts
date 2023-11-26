@@ -121,10 +121,16 @@ export function formatResults(all_result: string, results: string[]) {
   return all_votes;
 }
 
-export function execGenInput() {
+export function execGenInput(certificationSystem: string) {
   console.log(chalk.green("genInput (download zkey and MACI messages):"));
 
-  const scriptPath = "./operator.sh";
+  let scriptPath = "./operator_groth16.sh";
+
+  if (certificationSystem === "groth16") {
+    scriptPath = "./operator_groth16.sh";
+  } else {
+    scriptPath = "./operator_plonk.sh";
+  }
 
   const result = spawnSync("bash", [scriptPath], {
     stdio: "inherit",
