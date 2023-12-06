@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import { spawnSync } from "child_process";
 import chalk from "chalk";
-
+import Table from "cli-table3";
 import { Secp256k1HdWallet } from "@cosmjs/launchpad";
 import { GasPrice, SigningStargateClient } from "@cosmjs/stargate";
 import {
@@ -118,6 +118,92 @@ export function formatResults(all_result: string, results: string[]) {
     index += 1;
   }
   return all_votes;
+}
+
+export function caculateResult(all_votes: string[], circuit_type: string) {
+  const MATCHING_POOL = 1000000;
+  const MAX_VOTES = 10n ** 24n;
+
+  // const rawdata = fs.readFileSync(
+  //   path.join(__dirname, "../build/inputs/result.json")
+  // );
+  // const result = JSON.parse(rawdata);
+
+  let totalArea = 0n;
+  let totalVote = 0;
+  const output = [];
+  for (let i = 0; i < all_votes.length; i++) {
+    const r = BigInt(all_votes[i]);
+    const v = r / MAX_VOTES;
+    const v2 = r % MAX_VOTES;
+    let area;
+    if (circuit_type === "0") {
+      area = v;
+    } else {
+      area = v * v - v2;
+    }
+    totalArea += area;
+    totalVote += Number(v);
+    output.push({
+      maciId: i,
+      v: Number(v),
+      area,
+      matching: 0,
+      v_rate: "",
+    });
+  }
+
+  let totalMatching = 0;
+  for (const item of output) {
+    let matching = Math.round(
+      (MATCHING_POOL * Number(item.area)) / Number(totalArea)
+    );
+    item.matching = matching;
+    totalMatching += matching;
+    item.v_rate = (item.v / totalVote).toFixed(4);
+  }
+
+  const table = new Table({
+    head: [
+      "option_id",
+      "maci_id",
+      "votes",
+      "vote_rate",
+      "matching",
+      "maching_rate",
+    ],
+    colWidths: [15, 15, 15, 15, 15, 15],
+  });
+
+  output.forEach((item, index) => {
+    table.push([
+      index,
+      item.maciId,
+      item.v,
+      item.v_rate,
+      item.matching,
+      (item.matching / totalMatching).toFixed(4),
+    ]);
+  });
+
+  console.log(`total vote: ${totalVote}, total area: ${totalArea}`);
+  console.log(table.toString());
+
+  let scv = "option_id, maci_id, votes, vote_rate, matcing, matcing_rate\n";
+  scv += output
+    .map((item, index) =>
+      [
+        index,
+        item.maciId,
+        item.v,
+        item.v_rate,
+        item.matching,
+        (item.matching / totalMatching).toFixed(4),
+      ].join(", ")
+    )
+    .join("\n");
+
+  fs.writeFileSync("./build/inputs/result.csv", scv);
 }
 
 export function execGenInput() {

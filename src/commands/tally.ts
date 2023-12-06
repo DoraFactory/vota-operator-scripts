@@ -9,6 +9,7 @@ import {
   formatNumber,
   countMsgAndTally,
   formatResults,
+  caculateResult,
   withdrawBalance,
 } from "../utils";
 
@@ -143,8 +144,11 @@ const commandModule: CommandModule = {
             all_votes.push(vote);
             index += 1;
           }
-          let results_data = formatResults(all_result, all_votes);
-          console.log(results_data);
+
+          let circuit_type = await maci.queryCircuitType();
+          console.log("This round has already ended.\n");
+
+          caculateResult(all_votes, circuit_type);
 
           console.log(
             chalk.blue(
@@ -263,8 +267,9 @@ const commandModule: CommandModule = {
           all_votes.push(vote);
           index += 1;
         }
-        let results_data = formatResults(all_result, all_votes);
-        console.log(results_data);
+
+        let circuit_type = await maci.queryCircuitType();
+        caculateResult(all_votes, circuit_type);
 
         console.log(
           chalk.blue(
@@ -341,8 +346,9 @@ const commandModule: CommandModule = {
           all_votes.push(vote);
           index += 1;
         }
-        let results_data = formatResults(all_result, all_votes);
-        console.log(results_data);
+
+        let circuit_type = await maci.queryCircuitType();
+        caculateResult(all_votes, circuit_type);
 
         console.log(
           chalk.blue(
@@ -362,9 +368,14 @@ const commandModule: CommandModule = {
           all_votes.push(vote);
           index += 1;
         }
-        let results_data = formatResults(all_result, all_votes);
+        let circuit_type = await maci.queryCircuitType();
+
+        // let results_data = formatResults(all_result, all_votes);
+        // console.log(results_data);
         console.log("This round has already ended.\n");
-        console.log(results_data);
+
+        caculateResult(all_votes, circuit_type);
+
         console.log(
           chalk.blue(
             "All zero-knowledge proofs are successfully verified on-chain."
