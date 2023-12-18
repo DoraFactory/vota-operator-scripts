@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import { spawnSync } from "child_process";
 import chalk from "chalk";
-
+import Table from "cli-table3";
 import { Secp256k1HdWallet } from "@cosmjs/launchpad";
 import { GasPrice, SigningStargateClient } from "@cosmjs/stargate";
 import {
@@ -11,13 +11,13 @@ import {
 
 import { MaciClient } from "../../ts/Maci.client";
 
-// export const rpcEndpoint = "https://vota-rpc.dorafactory.org";
-// export const restEndpoint = "https://vota-rest.dorafactory.org";
-// export const chainId = "vota-ash";
+export const rpcEndpoint = "https://vota-rpc.dorafactory.org";
+export const restEndpoint = "https://vota-rest.dorafactory.org";
+export const chainId = "vota-ash";
 
-export const rpcEndpoint = "https://vota-testnet-rpc.dorafactory.org";
-export const restEndpoint = "https://vota-testnet-rest.dorafactory.org";
-export const chainId = "vota-testnet";
+// export const rpcEndpoint = "https://vota-testnet-rpc.dorafactory.org";
+// export const restEndpoint = "https://vota-testnet-rest.dorafactory.org";
+// export const chainId = "vota-testnet";
 export const prefix = "dora";
 
 // export const mnemonic = // dora1t58t7azqzq26406uwehgnfekal5kzym3m9lz4k
@@ -121,6 +121,92 @@ export function formatResults(all_result: string, results: string[]) {
   return all_votes;
 }
 
+export function caculateResult(all_votes: string[], circuit_type: string) {
+  const MATCHING_POOL = 1000000;
+  const MAX_VOTES = 10n ** 24n;
+
+  // const rawdata = fs.readFileSync(
+  //   path.join(__dirname, "../build/inputs/result.json")
+  // );
+  // const result = JSON.parse(rawdata);
+
+  let totalArea = 0n;
+  let totalVote = 0;
+  const output = [];
+  for (let i = 0; i < all_votes.length; i++) {
+    const r = BigInt(all_votes[i]);
+    const v = r / MAX_VOTES;
+    const v2 = r % MAX_VOTES;
+    let area;
+    if (circuit_type === "0") {
+      area = v;
+    } else {
+      area = v * v - v2;
+    }
+    totalArea += area;
+    totalVote += Number(v);
+    output.push({
+      maciId: i,
+      v: Number(v),
+      area,
+      matching: 0,
+      v_rate: "",
+    });
+  }
+
+  let totalMatching = 0;
+  for (const item of output) {
+    let matching = Math.round(
+      (MATCHING_POOL * Number(item.area)) / Number(totalArea)
+    );
+    item.matching = matching;
+    totalMatching += matching;
+    item.v_rate = (item.v / totalVote).toFixed(4);
+  }
+
+  const table = new Table({
+    head: [
+      "option_id",
+      "maci_id",
+      "votes",
+      "vote_rate",
+      "matching",
+      "maching_rate",
+    ],
+    colWidths: [15, 15, 15, 15, 15, 15],
+  });
+
+  output.forEach((item, index) => {
+    table.push([
+      index,
+      item.maciId,
+      item.v,
+      item.v_rate,
+      item.matching,
+      (item.matching / totalMatching).toFixed(4),
+    ]);
+  });
+
+  console.log(`total vote: ${totalVote}, total area: ${totalArea}`);
+  console.log(table.toString());
+
+  let scv = "option_id, maci_id, votes, vote_rate, matcing, matcing_rate\n";
+  scv += output
+    .map((item, index) =>
+      [
+        index,
+        item.maciId,
+        item.v,
+        item.v_rate,
+        item.matching,
+        (item.matching / totalMatching).toFixed(4),
+      ].join(", ")
+    )
+    .join("\n");
+
+  fs.writeFileSync("./build/inputs/result.csv", scv);
+}
+
 export function execGenInput(certificationSystem: string) {
   console.log(chalk.green("genInput (download zkey and MACI messages):"));
 
@@ -149,7 +235,7 @@ export function execGenInput(certificationSystem: string) {
 
 export async function balanceOf(address: string) {
   try {
-    let url = `https://vota-testnet-rest.dorafactory.org/cosmos/bank/v1beta1/balances/${address}/by_denom?denom=peaka`;
+    let url = `https://vota-rest.dorafactory.org/cosmos/bank/v1beta1/balances/${address}/by_denom?denom=peaka`;
     const result = await fetch(url, {
       method: "get",
       mode: "cors",

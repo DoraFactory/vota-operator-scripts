@@ -8,3 +8,4 @@ zkeys/
 *.tar.gz
 secret.env
 yarn-error.log
+*.key
