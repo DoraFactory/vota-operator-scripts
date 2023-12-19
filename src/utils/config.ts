@@ -11,13 +11,13 @@ import {
 
 import { MaciClient } from "../../ts/Maci.client";
 
-export const rpcEndpoint = "https://vota-rpc.dorafactory.org";
-export const restEndpoint = "https://vota-rest.dorafactory.org";
-export const chainId = "vota-ash";
+// export const rpcEndpoint = "https://vota-rpc.dorafactory.org";
+// export const restEndpoint = "https://vota-rest.dorafactory.org";
+// export const chainId = "vota-ash";
 
-// export const rpcEndpoint = "https://vota-testnet-rpc.dorafactory.org";
-// export const restEndpoint = "https://vota-testnet-rest.dorafactory.org";
-// export const chainId = "vota-testnet";
+export const rpcEndpoint = "https://vota-testnet-rpc.dorafactory.org";
+export const restEndpoint = "https://vota-testnet-rest.dorafactory.org";
+export const chainId = "vota-testnet";
 export const prefix = "dora";
 
 // export const mnemonic = // dora1t58t7azqzq26406uwehgnfekal5kzym3m9lz4k
@@ -56,11 +56,7 @@ export async function getContractSignerClient() {
   );
 
   const [{ address }] = await wallet.getAccounts();
-  return new MaciClient(
-    signingCosmWasmClient,
-    address, // "dora1t58t7azqzq26406uwehgnfekal5kzym3m9lz4k"
-    contractAddress
-  );
+  return new MaciClient(signingCosmWasmClient, address, contractAddress);
 }
 
 export async function readAndParseJsonFile(filePath: string): Promise<any> {
