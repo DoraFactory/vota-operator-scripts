@@ -54,6 +54,7 @@ export interface MaciReadOnlyInterface {
   maxVoteOptions: () => Promise<Uint256>;
   queryTotalFeeGrant: () => Promise<Uint128>;
   queryCircuitType: () => Promise<Uint256>;
+  queryCertSystem: () => Promise<Uint256>;
 }
 export class MaciQueryClient implements MaciReadOnlyInterface {
   client: CosmWasmClient;
@@ -78,6 +79,7 @@ export class MaciQueryClient implements MaciReadOnlyInterface {
     this.maxVoteOptions = this.maxVoteOptions.bind(this);
     this.queryTotalFeeGrant = this.queryTotalFeeGrant.bind(this);
     this.queryCircuitType = this.queryCircuitType.bind(this);
+    this.queryCertSystem = this.queryCertSystem.bind(this);
   }
 
   getRoundInfo = async (): Promise<RoundInfo> => {
@@ -172,6 +174,11 @@ export class MaciQueryClient implements MaciReadOnlyInterface {
   queryCircuitType = async (): Promise<Uint256> => {
     return this.client.queryContractSmart(this.contractAddress, {
       query_circuit_type: {},
+    });
+  };
+  queryCertSystem = async (): Promise<Uint256> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      query_cert_system: {},
     });
   };
 }

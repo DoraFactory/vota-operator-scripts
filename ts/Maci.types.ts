@@ -244,6 +244,9 @@ export type QueryMsg =
     }
   | {
       query_circuit_type: {};
+    }
+  | {
+      query_cert_system: {};
     };
 export type Addr = string;
 export type PeriodStatus =
