@@ -1,6 +1,7 @@
 import { exit, type CommandModule } from "yargs";
 import chalk from "chalk";
 import * as fs from "fs";
+import { GasPrice, StdFee, calculateFee } from "@cosmjs/stargate";
 
 import { Uint256, Groth16ProofType, PlonkProofType } from "../../ts/Maci.types";
 import {
@@ -267,6 +268,12 @@ const commandModule: CommandModule = {
         const circuitPower = contractInfo["circuitPower"];
         const certificationSystem = contractInfo["certificationSystem"];
 
+        let fee = undefined;
+        if (circuitPower === "6-3-3-125") {
+          const gasPrice = GasPrice.fromString("100000000000" + "peaka");
+          fee = calculateFee(100000000, gasPrice);
+        }
+
         await downloadAndExtractZKeys(circuitPower, certificationSystem);
 
         console.log(`Certification system: ${certificationSystem}`);
@@ -296,10 +303,13 @@ const commandModule: CommandModule = {
               c: msg_input.pi_c.substring(2),
             };
 
-            const process_message_res = await maci.processMessage({
-              newStateCommitment,
-              groth16Proof,
-            });
+            const process_message_res = await maci.processMessage(
+              {
+                newStateCommitment,
+                groth16Proof,
+              },
+              fee
+            );
             console.log(process_message_res);
             console.log("");
           }
@@ -331,10 +341,13 @@ const commandModule: CommandModule = {
               wire_values_at_z_omega: msg_input.wire_values_at_z_omega,
             };
 
-            const process_message_res = await maci.processMessage({
-              newStateCommitment,
-              plonkProof,
-            });
+            const process_message_res = await maci.processMessage(
+              {
+                newStateCommitment,
+                plonkProof,
+              },
+              fee
+            );
             console.log(process_message_res);
             console.log("");
           }
@@ -362,10 +375,13 @@ const commandModule: CommandModule = {
             };
 
             // try {
-            const process_tally_res = await maci.processTally({
-              newTallyCommitment,
-              groth16Proof,
-            });
+            const process_tally_res = await maci.processTally(
+              {
+                newTallyCommitment,
+                groth16Proof,
+              },
+              fee
+            );
             console.log(process_tally_res);
             // } catch (error: any) {
             //   console.log(
@@ -406,10 +422,13 @@ const commandModule: CommandModule = {
               wire_values_at_z_omega: tally_proof.wire_values_at_z_omega,
             };
 
-            const process_tally_res = await maci.processTally({
-              newTallyCommitment,
-              plonkProof,
-            });
+            const process_tally_res = await maci.processTally(
+              {
+                newTallyCommitment,
+                plonkProof,
+              },
+              fee
+            );
             console.log(process_tally_res);
             console.log("");
           }
@@ -424,10 +443,13 @@ const commandModule: CommandModule = {
           )}.json`
         );
         const salt: Uint256 = tally_final_input.newResultsRootSalt;
-        const stop_tallying_res = await maci.stopTallyingPeriod({
-          results,
-          salt,
-        });
+        const stop_tallying_res = await maci.stopTallyingPeriod(
+          {
+            results,
+            salt,
+          },
+          fee
+        );
         console.log(stop_tallying_res);
 
         let max_vote_options = Number(await maci.maxVoteOptions());
