@@ -26,10 +26,14 @@ const user1 = genKeypair(privateKeys[1])
 const user2 = genKeypair(privateKeys[4])
 const main = new MACI(
   2, 1, 1, 5,               // tree config
+  // 4, 2, 2, 25,
+  // 6, 3, 3, 125,               // tree config
   privateKeys[0],         // coordinator
   5,
+  // 25,
+  // 125,
   2,
-  false
+  true
 )
 
 main.initStateTree(USER_1, user1.pubKey, 100)

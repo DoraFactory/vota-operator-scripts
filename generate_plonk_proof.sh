@@ -26,7 +26,8 @@ compile_and_ts_and_witness() {
 
   folder_path="./build/inputs"
   mkdir -p build/public
-
+  mkdir -p zkeys/verification_key/msg
+  plonkit export-verification-key --srs_monomial_form ./ptau/setup_2\^23.key --circuit zkeys/r1cs/msg.r1cs --vk_json zkeys/verification_key/msg/msg_vk.json --vk msg_vk.bin
   for file in "$folder_path"/msg-input_*.json; do
       if [ -f "$file" ]; then
         filename=$(basename "$file") 
@@ -41,6 +42,9 @@ compile_and_ts_and_witness() {
       fi
   done
 
+
+  mkdir -p zkeys/verification_key/tally
+  plonkit export-verification-key --srs_monomial_form ./ptau/setup_2\^23.key --circuit zkeys/r1cs/tally.r1cs --vk_json zkeys/verification_key/tally/tally_vk.json --vk tally_vk.bin 
   for file in "$folder_path"/tally-input_*.json; do
       if [ -f "$file" ]; then
         filename=$(basename "$file") 

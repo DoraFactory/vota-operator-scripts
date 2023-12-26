@@ -13,6 +13,9 @@ import tally from "./tally";
 import get_result from "./get_result";
 import get_all_result from "./get_all_result";
 import withdraw from "./withdraw";
+import get_contract_logs from "./get_contract_logs";
+import estimated_result from "./estimated_result";
+import download_zkeys from "./download_zkeys";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Each command has different options
 export const commands: CommandModule<any, any>[] = [
@@ -29,4 +32,7 @@ export const commands: CommandModule<any, any>[] = [
   get_result,
   get_all_result,
   withdraw,
+  get_contract_logs,
+  estimated_result,
+  download_zkeys,
 ];

@@ -1,5 +1,6 @@
 import { exit, type CommandModule } from "yargs";
 import chalk from "chalk";
+import * as fs from "fs";
 
 import { Uint256, Groth16ProofType, PlonkProofType } from "../../ts/Maci.types";
 import {
@@ -10,7 +11,9 @@ import {
   countMsgAndTally,
   formatResults,
   caculateResult,
+  downloadAndExtractZKeys,
   withdrawBalance,
+  getContractLogs,
 } from "../utils";
 
 const commandModule: CommandModule = {
@@ -37,10 +40,24 @@ const commandModule: CommandModule = {
           const start_process_res = await maci.startProcessPeriod();
           console.log(start_process_res);
 
+          await getContractLogs(maci.contractAddress);
+          const voteOption = await maci.maxVoteOptions();
+          const max_vote_env = {
+            max_vote_options: Number(voteOption),
+          };
+          fs.writeFileSync(
+            `${path}/build/max-vote-options.json`,
+            JSON.stringify(max_vote_env)
+          );
+          console.log(`max_vote_options: ${voteOption}`);
+
           const contractInfo = await readAndParseJsonFile(
             `${path}/build/contract-logs.json`
           );
+          const circuitPower = contractInfo["circuitPower"];
           const certificationSystem = contractInfo["certificationSystem"];
+
+          await downloadAndExtractZKeys(circuitPower, certificationSystem);
 
           console.log(`Certification system: ${certificationSystem}`);
           execGenInput(certificationSystem);
@@ -233,10 +250,24 @@ const commandModule: CommandModule = {
           console.log("Did not voting end");
         }
       } else if (period.status === "processing") {
+        await getContractLogs(maci.contractAddress);
+        const voteOption = await maci.maxVoteOptions();
+        const max_vote_env = {
+          max_vote_options: Number(voteOption),
+        };
+        fs.writeFileSync(
+          `${path}/build/max-vote-options.json`,
+          JSON.stringify(max_vote_env)
+        );
+        console.log(`max_vote_options: ${voteOption}`);
+
         const contractInfo = await readAndParseJsonFile(
           `${path}/build/contract-logs.json`
         );
+        const circuitPower = contractInfo["circuitPower"];
         const certificationSystem = contractInfo["certificationSystem"];
+
+        await downloadAndExtractZKeys(circuitPower, certificationSystem);
 
         console.log(`Certification system: ${certificationSystem}`);
         execGenInput(certificationSystem);
@@ -400,7 +431,6 @@ const commandModule: CommandModule = {
         console.log(stop_tallying_res);
 
         let max_vote_options = Number(await maci.maxVoteOptions());
-        let all_result = await maci.getAllResult();
         let all_votes = [];
         let index = 0;
 
@@ -421,10 +451,16 @@ const commandModule: CommandModule = {
 
         await withdrawBalance();
       } else if (period.status === "tallying") {
-        const commitments = await readAndParseJsonFile(
-          `${path}/build/inputs/commitments.json`
+        // await getContractLogs(maci.contractAddress);
+        const voteOption = await maci.maxVoteOptions();
+        const max_vote_env = {
+          max_vote_options: Number(voteOption),
+        };
+        fs.writeFileSync(
+          `${path}/build/max-vote-options.json`,
+          JSON.stringify(max_vote_env)
         );
-        const { msgCount, tallyCount } = countMsgAndTally(commitments);
+        console.log(`max_vote_options: ${voteOption}`);
 
         const contractInfo = await readAndParseJsonFile(
           `${path}/build/contract-logs.json`
@@ -435,6 +471,13 @@ const commandModule: CommandModule = {
         console.log(
           "Submitting on-chain transactions to verify zero-knowledge proofs."
         );
+
+        // execGenInput(certificationSystem);
+
+        const commitments = await readAndParseJsonFile(
+          `${path}/build/inputs/commitments.json`
+        );
+        const { msgCount, tallyCount } = countMsgAndTally(commitments);
 
         console.log(chalk.green("processTallying"));
         if (certificationSystem === "groth16") {
@@ -505,7 +548,6 @@ const commandModule: CommandModule = {
             console.log("");
           }
         }
-
         console.log(chalk.green("stopTallying"));
         const results: Uint256[] = await readAndParseJsonFile(
           `${path}/build/inputs/result.json`
@@ -523,7 +565,6 @@ const commandModule: CommandModule = {
         console.log(stop_tallying_res);
 
         let max_vote_options = Number(await maci.maxVoteOptions());
-        let all_result = await maci.getAllResult();
         let all_votes = [];
         let index = 0;
 
@@ -545,7 +586,6 @@ const commandModule: CommandModule = {
         await withdrawBalance();
       } else if (period.status === "ended") {
         let max_vote_options = Number(await maci.maxVoteOptions());
-        let all_result = await maci.getAllResult();
         let all_votes = [];
         let index = 0;
 

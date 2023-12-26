@@ -15,6 +15,7 @@ import { MaciClient } from "../../ts/Maci.client";
 // export const restEndpoint = "https://vota-rest.dorafactory.org";
 // export const chainId = "vota-ash";
 
+export const apiEndpoint = "https://vota-testnet-api.dorafactory.org";
 export const rpcEndpoint = "https://vota-testnet-rpc.dorafactory.org";
 export const restEndpoint = "https://vota-testnet-rest.dorafactory.org";
 export const chainId = "vota-testnet";
@@ -229,9 +230,29 @@ export function execGenInput(certificationSystem: string) {
   }
 }
 
+export function execGenEstimated() {
+  console.log(chalk.green("genInput(estimated):"));
+
+  let scriptPath = "./estimated_result.sh";
+
+  const result = spawnSync("bash", [scriptPath], {
+    stdio: "inherit",
+  });
+
+  if (result.error) {
+    console.error(`Tally script execution failed: ${result.error.message}`);
+  } else if (result.status !== 0) {
+    console.error(
+      `Tally script execution failed, error code: ${result.status}`
+    );
+  } else {
+    console.log("Tally script successfully executed.\n");
+  }
+}
+
 export async function balanceOf(address: string) {
   try {
-    let url = `https://vota-rest.dorafactory.org/cosmos/bank/v1beta1/balances/${address}/by_denom?denom=peaka`;
+    let url = `${restEndpoint}/cosmos/bank/v1beta1/balances/${address}/by_denom?denom=peaka`;
     const result = await fetch(url, {
       method: "get",
       mode: "cors",

@@ -1,11 +1,11 @@
 import type { CommandModule } from "yargs";
 
-import { getContractSignerClient } from "../utils";
+import { getContractLogs, getContractSignerClient } from "../utils";
 
 const commandModule: CommandModule = {
-  command: "get-all-result",
+  command: "get-contract-logs",
 
-  describe: "Get round results",
+  describe: "Get contract logs",
 
   builder(yargs) {
     return yargs;
@@ -13,8 +13,7 @@ const commandModule: CommandModule = {
 
   async handler() {
     const maci = await getContractSignerClient();
-    const res = await maci.getAllResult();
-    console.log(res);
+    await getContractLogs(maci.contractAddress);
     process.exit(0);
   },
 };
