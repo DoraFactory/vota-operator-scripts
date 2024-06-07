@@ -1,0 +1,17 @@
+.vscode/
+node_modules/
+build/
+ptau/powersOfTau28_hez_final_22.ptau
+.env
+dist
+zkeys/
+*.tar.gz
+secret.env
+yarn-error.log
+*.key
+msg_vk.bin
+msg_vk.json
+tally_vk.bin
+tally_vk.json
+vk.bin
+vk.json
