@@ -38,7 +38,6 @@ interface RoundData {
 	status: string;
 	period: string;
 	actionType: string;
-	roundId: string;
 	roundTitle: string;
 	roundDescription: string;
 	roundLink: string;
@@ -47,7 +46,6 @@ interface RoundData {
 	voteOptionMap: string;
 	results: string;
 	allResult: string;
-	maciDenom: string;
 	gasStationEnable: boolean;
 	totalGrant: string;
 	baseGrant: string;
@@ -128,11 +126,9 @@ export async function getContractLogs(contractAddress: string) {
       status
       period
       actionType
-      roundId
       roundTitle
       roundDescription
       roundLink
-      maciDenom
       gasStationEnable
       totalGrant
       baseGrant

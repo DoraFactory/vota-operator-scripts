@@ -59,11 +59,9 @@ const ROUND_QUERY = `query {
       status
       period
       actionType
-      roundId
       roundTitle
       roundDescription
       roundLink
-      maciDenom
       gasStationEnable
       totalGrant
       baseGrant
